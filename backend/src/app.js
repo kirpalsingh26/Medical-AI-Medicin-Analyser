@@ -25,8 +25,6 @@ const allowedOrigins = new Set(
 const isAllowedOrigin = (origin) => {
   if (!origin) return true;
   if (allowedOrigins.has(origin)) return true;
-
-  // Allow Vite localhost dynamic ports (e.g. 5173-5199) during development.
   if (/^https?:\/\/(localhost|127\.0\.0\.1):51\d{2}$/.test(origin)) return true;
 
   return false;

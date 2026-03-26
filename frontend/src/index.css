@@ -135,8 +135,6 @@ html[data-theme='light'] .panel:hover {
 .subtle {
   color: var(--subtle-text);
 }
-
-/* Light theme polish for common hard-coded dark utility classes used across pages */
 html[data-theme='light'] .bg-slate-950\/60 {
   background-color: rgba(241, 245, 249, 0.9) !important;
 }

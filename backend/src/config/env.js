@@ -5,9 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load root workspace .env regardless of current working directory.
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
-// Optional fallback to backend/.env if present.
 dotenv.config({ path: path.resolve(__dirname, '../../.env'), override: false });
 
 export const env = {
