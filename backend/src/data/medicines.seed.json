@@ -1,0 +1,35 @@
+[
+  {
+    "name": "Paracetamol",
+    "genericName": "Acetaminophen",
+    "category": "Analgesic",
+    "manufacturer": "Generic Pharma",
+    "dosage": "500mg",
+    "uses": ["Fever", "Mild pain"],
+    "sideEffects": ["Nausea", "Rash"],
+    "alternatives": ["Ibuprofen"],
+    "barcode": "8901234567890"
+  },
+  {
+    "name": "Ibuprofen",
+    "genericName": "Ibuprofen",
+    "category": "NSAID",
+    "manufacturer": "Relief Labs",
+    "dosage": "400mg",
+    "uses": ["Inflammation", "Pain"],
+    "sideEffects": ["Acidity", "Dizziness"],
+    "alternatives": ["Paracetamol"],
+    "barcode": "8901234567891"
+  },
+  {
+    "name": "Amoxicillin",
+    "genericName": "Amoxicillin",
+    "category": "Antibiotic",
+    "manufacturer": "CareLife",
+    "dosage": "250mg",
+    "uses": ["Bacterial infection"],
+    "sideEffects": ["Diarrhea", "Nausea"],
+    "alternatives": ["Azithromycin"],
+    "barcode": "8901234567892"
+  }
+]
