@@ -123,11 +123,18 @@ const ScanPage = () => {
           className="panel rounded-2xl p-5 lg:col-span-2"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <label className="inline-block cursor-pointer rounded-xl border border-indigo-400/30 bg-indigo-500/20 px-4 py-2 font-semibold text-indigo-900 transition hover:bg-indigo-500/30">
+            <input id="ocr-image-upload" type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+            <label
+              htmlFor="ocr-image-upload"
+              className={`inline-block cursor-pointer rounded-xl border px-4 py-2 font-semibold transition ${
+                dark
+                  ? 'border-indigo-400/30 bg-indigo-500/10 text-indigo-200 hover:bg-indigo-500/20'
+                  : 'border-indigo-400/50 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+              }`}
+            >
               <span className="inline-flex items-center gap-2">
                 <Camera className="h-4 w-4" /> Upload Prescription / Medicine Image
               </span>
-              <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
             </label>
             <button
               onClick={clearOcr}
