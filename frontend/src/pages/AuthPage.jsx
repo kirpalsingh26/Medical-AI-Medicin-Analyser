@@ -75,6 +75,7 @@ const AuthPage = () => {
             <input
               placeholder="Email"
               type="email"
+              autoComplete="email"
               className="auth-input-control"
               value={form.email}
               onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
@@ -87,6 +88,7 @@ const AuthPage = () => {
             <input
               placeholder="Password"
               type={showPassword ? 'text' : 'password'}
+              autoComplete={isLogin ? 'current-password' : 'new-password'}
               className="auth-input-control pr-12"
               value={form.password}
               onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}

@@ -27,7 +27,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
+    const { data } = await api.post('/auth/login', {
+      email: String(email || '').trim().toLowerCase(),
+      password: String(password || '').trim()
+    });
     localStorage.setItem('medvision_token', data.data.token);
     setUser({
       id: data.data.id,
@@ -38,7 +41,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
-    const { data } = await api.post('/auth/register', { name, email, password });
+    const { data } = await api.post('/auth/register', {
+      name: String(name || '').trim(),
+      email: String(email || '').trim().toLowerCase(),
+      password: String(password || '').trim()
+    });
     localStorage.setItem('medvision_token', data.data.token);
     setUser({
       id: data.data.id,

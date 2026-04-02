@@ -5,6 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
+    "dve": "nodemon src/server.js",
+    "vde": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed": "node src/scripts/seedMedicines.js",
     "seed:india": "node src/scripts/seedIndianMedicines.js",

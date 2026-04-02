@@ -14,20 +14,51 @@ const tokenResponse = (user) => ({
 
 export const register = async (req, res, next) => {
   const { name, email, password } = req.body;
-  const exists = await User.findOne({ email });
+  const normalizedEmail = String(email || '')
+    .trim()
+    .toLowerCase();
+  const normalizedPassword = String(password || '').trim();
+
+  if (!name || !normalizedEmail || !normalizedPassword) {
+    return next(new AppError('Name, email and password are required', 400));
+  }
+
+  const exists = await User.findOne({ email: normalizedEmail });
   if (exists) return next(new AppError('Email already in use', 409));
 
-  const hash = await bcrypt.hash(password, 12);
-  const user = await User.create({ name, email, password: hash });
+  const hash = await bcrypt.hash(normalizedPassword, 12);
+  const user = await User.create({ name: String(name).trim(), email: normalizedEmail, password: hash });
   return res.status(201).json({ success: true, data: tokenResponse(user) });
 };
 
 export const login = async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const normalizedEmail = String(email || '')
+    .trim()
+    .toLowerCase();
+  const normalizedPassword = String(password || '').trim();
+
+  if (!normalizedEmail || !normalizedPassword) {
+    return next(new AppError('Email and password are required', 400));
+  }
+
+  const user = await User.findOne({ email: normalizedEmail });
   if (!user) return next(new AppError('Invalid credentials', 401));
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  let isMatch = false;
+  const storedPassword = String(user.password || '');
+
+  if (storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$')) {
+    isMatch = await bcrypt.compare(normalizedPassword, storedPassword);
+  } else {
+    // Backward compatibility: legacy users may have plain-text passwords.
+    isMatch = storedPassword === normalizedPassword;
+    if (isMatch) {
+      user.password = await bcrypt.hash(normalizedPassword, 12);
+      await user.save();
+    }
+  }
+
   if (!isMatch) return next(new AppError('Invalid credentials', 401));
 
   return res.status(200).json({ success: true, data: tokenResponse(user) });

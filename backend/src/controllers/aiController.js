@@ -123,9 +123,9 @@ export const chatbot = async (req, res) => {
   const { message, history = [] } = req.body;
   const normalizedHistory = Array.isArray(history)
     ? history
-        .slice(-8)
-        .map((item) => `${item.role === 'user' ? 'User' : 'Assistant'}: ${item.text || ''}`)
-        .join('\n')
+      .slice(-8)
+      .map((item) => `${item.role === 'user' ? 'User' : 'Assistant'}: ${item.text || ''}`)
+      .join('\n')
     : '';
 
   const prompt = [

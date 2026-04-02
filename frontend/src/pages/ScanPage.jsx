@@ -126,11 +126,10 @@ const ScanPage = () => {
             <input id="ocr-image-upload" type="file" accept="image/*" className="hidden" onChange={onFileChange} />
             <label
               htmlFor="ocr-image-upload"
-              className={`inline-block cursor-pointer rounded-xl border px-4 py-2 font-semibold transition ${
-                dark
+              className={`inline-block cursor-pointer rounded-xl border px-4 py-2 font-semibold transition ${dark
                   ? 'border-indigo-400/30 bg-indigo-500/10 text-indigo-200 hover:bg-indigo-500/20'
                   : 'border-indigo-400/50 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
-              }`}
+                }`}
             >
               <span className="inline-flex items-center gap-2">
                 <Camera className="h-4 w-4" /> Upload Prescription / Medicine Image
@@ -138,21 +137,19 @@ const ScanPage = () => {
             </label>
             <button
               onClick={clearOcr}
-              className={`rounded-xl border px-4 py-2 font-semibold transition ${
-                dark
+              className={`rounded-xl border px-4 py-2 font-semibold transition ${dark
                   ? 'border-rose-400/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20'
                   : 'border-rose-400/50 bg-rose-50 text-rose-700 hover:bg-rose-100'
-              }`}
+                }`}
             >
               Clear OCR
             </button>
             <button
               onClick={() => setShowAdvanced((p) => !p)}
-              className={`rounded-xl border px-4 py-2 font-semibold transition ${
-                dark
+              className={`rounded-xl border px-4 py-2 font-semibold transition ${dark
                   ? 'border-cyan-400/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'
                   : 'border-cyan-400/50 bg-cyan-50 text-cyan-700 hover:bg-cyan-100'
-              }`}
+                }`}
             >
               <span className="inline-flex items-center gap-2">
                 <Settings2 className="h-4 w-4" /> Advanced OCR
@@ -221,11 +218,10 @@ const ScanPage = () => {
                     setQuery(candidate);
                     handleSearch(candidate);
                   }}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                    dark
+                  className={`rounded-full border px-3 py-1.5 text-xs transition ${dark
                       ? 'border-white/10 bg-slate-900 text-slate-200 hover:bg-slate-800'
                       : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   {candidate}
                 </button>
@@ -246,11 +242,10 @@ const ScanPage = () => {
                       setQuery(item.name);
                       handleSearch(item.name);
                     }}
-                    className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                      dark
+                    className={`rounded-full border px-3 py-1.5 text-xs transition ${dark
                         ? 'border-cyan-400/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20'
                         : 'border-cyan-400/50 bg-cyan-50 text-cyan-700 hover:bg-cyan-100'
-                    }`}
+                      }`}
                     title={`Based on OCR token: ${item.basedOn}`}
                   >
                     {item.name}

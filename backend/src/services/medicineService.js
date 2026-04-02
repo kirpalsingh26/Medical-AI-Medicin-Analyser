@@ -147,7 +147,7 @@ export const medicineService = {
     const filter = !normalizedQuery
       ? {}
       : {
-          $or: [
+        $or: [
           { name: { $regex: `^${safeQuery}`, $options: 'i' } },
           { aliases: { $regex: `^${safeQuery}`, $options: 'i' } },
           { genericName: { $regex: `^${safeQuery}`, $options: 'i' } }
@@ -209,10 +209,10 @@ export const medicineService = {
 
     const overallSimilarity = Math.round(
       categorySimilarity * 0.22 +
-        genericSimilarity * 0.32 +
-        useOverlapPercent * 0.22 +
-        sideEffectOverlapPercent * 0.14 +
-        alternativeSimilarity * 0.1
+      genericSimilarity * 0.32 +
+      useOverlapPercent * 0.22 +
+      sideEffectOverlapPercent * 0.14 +
+      alternativeSimilarity * 0.1
     );
 
     return {

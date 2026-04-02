@@ -135,6 +135,7 @@ html[data-theme='light'] .panel:hover {
 .subtle {
   color: var(--subtle-text);
 }
+
 html[data-theme='light'] .bg-slate-950\/60 {
   background-color: rgba(241, 245, 249, 0.9) !important;
 }
@@ -371,12 +372,14 @@ html[data-theme='light'] .badge {
 }
 
 @keyframes medvision-dot {
+
   0%,
   80%,
   100% {
     transform: translateY(0);
     opacity: 0.35;
   }
+
   40% {
     transform: translateY(-3px);
     opacity: 1;

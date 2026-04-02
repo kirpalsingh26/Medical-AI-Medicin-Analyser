@@ -139,11 +139,10 @@ const ChatPage = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${
-                c.role === 'user'
+              className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${c.role === 'user'
                   ? 'ml-auto bg-gradient-to-r from-cyan-500 to-blue-600 font-medium text-white shadow-lg shadow-cyan-700/20'
                   : 'border border-white/10 bg-slate-900 text-slate-100'
-              }`}
+                }`}
             >
               <p className="whitespace-pre-wrap leading-relaxed">{c.text}</p>
               <div className="mt-2 flex items-center gap-2 text-[10px] opacity-70">
