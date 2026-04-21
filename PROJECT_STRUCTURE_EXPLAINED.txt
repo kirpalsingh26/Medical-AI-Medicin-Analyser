@@ -1,0 +1,237 @@
+MEDVISION PROJECT - FILE STRUCTURE & EXPLANATION
+=================================================
+
+Overview
+--------
+This is a full-stack medicine intelligence platform with:
+1) Frontend: React + Vite + Tailwind UI
+2) Backend: Node.js + Express + MongoDB APIs
+3) AI/OCR: Gemini-based AI services and Tesseract OCR pipeline
+
+
+Top-Level Structure
+-------------------
+.
+├── .env
+├── .env.example
+├── .gitignore
+├── README.md
+├── package.json
+├── package-lock.json
+├── backend/
+└── frontend/
+
+
+Root Files
+----------
+- .env
+  Shared/local environment variables used by backend runtime.
+
+- .env.example
+  Template for required environment variables.
+
+- package.json
+  Root workspace package metadata/scripts (monorepo-style workspace setup).
+
+- README.md
+  Project setup, usage, and feature documentation.
+
+
+Backend (API + Business Logic)
+------------------------------
+backend/
+├── .env
+├── eng.traineddata
+├── package.json
+└── src/
+    ├── app.js
+    ├── server.js
+    ├── config/
+    ├── controllers/
+    ├── data/
+    ├── middleware/
+    ├── models/
+    ├── routes/
+    ├── scripts/
+    ├── services/
+    └── utils/
+
+Key backend file responsibilities:
+
+- backend/src/server.js
+  App startup entrypoint. Connects DB and starts Express server.
+
+- backend/src/app.js
+  Express app wiring: security middleware, CORS, JSON parser, route mounting,
+  and global error handlers.
+
+Config
+------
+- backend/src/config/env.js
+  Loads environment files and exports normalized env object.
+
+- backend/src/config/db.js
+  MongoDB connection setup with retry/failure logic.
+
+- backend/src/config/logger.js
+  Winston logger configuration.
+
+Controllers (HTTP handlers)
+---------------------------
+- authController.js
+  Register/login/me endpoints.
+
+- medicineController.js
+  Search, autocomplete, barcode lookup, OCR scan, compare medicines.
+
+- aiController.js
+  AI chat/insight related request handlers.
+
+- analyticsController.js, dashboardController.js
+  Usage metrics and dashboard endpoints.
+
+Services (core domain/business logic)
+-------------------------------------
+- medicineService.js
+  Search/autocomplete/fuzzy matching/compare intelligence.
+
+- ocrService.js
+  OCR extraction and candidate ranking pipeline (Tesseract + token cleanup).
+
+- geminiService.js
+  Gemini API integration for AI responses.
+
+- analyticsService.js
+  Analytics aggregation logic.
+
+- cacheService.js
+  In-memory caching for faster repeated queries.
+
+Models (MongoDB)
+----------------
+- User.js, Medicine.js, SearchHistory.js, Analytics.js
+  Mongoose schemas/models for auth, medicine catalog, search history, and analytics.
+
+Routes
+------
+- authRoutes.js, medicineRoutes.js, aiRoutes.js, dashboardRoutes.js, analyticsRoutes.js
+  Route definitions mapped to controller functions.
+
+Middleware
+----------
+- auth.js
+  JWT auth guard for protected routes.
+
+- rateLimiter.js
+  API request throttling.
+
+- notFound.js, errorHandler.js
+  404 and centralized error response handling.
+
+Utils
+-----
+- AppError.js
+  Standardized operational error class.
+
+- asyncHandler.js
+  Async route wrapper to forward promise errors.
+
+- jwt.js
+  JWT sign/verify helpers.
+
+Data + Scripts
+--------------
+- backend/src/data/
+  Seed datasets (JSON/CSV) for medicines.
+
+- backend/src/scripts/
+  Seeder/import scripts for database population.
+
+- backend/eng.traineddata
+  OCR language data file used by Tesseract.
+
+
+Frontend (UI Client)
+--------------------
+frontend/
+├── .env
+├── index.html
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+├── vite.config.js
+├── httpspremmedical.inproductdolo-650-mg-strip-of-15-tablets.webp
+└── src/
+    ├── main.jsx
+    ├── App.jsx
+    ├── index.css
+    ├── api/
+    ├── components/
+    ├── context/
+    ├── hooks/
+    └── pages/
+
+Key frontend file responsibilities:
+
+- frontend/src/main.jsx
+  React app bootstrap and provider mounting.
+
+- frontend/src/App.jsx
+  Route layout and page composition.
+
+- frontend/src/index.css
+  Global styles and Tailwind utility composition.
+
+API Layer
+---------
+- frontend/src/api/client.js
+  Axios client with base URL and auth token interceptor.
+
+Context
+-------
+- frontend/src/context/AuthContext.jsx
+  Login/register/logout state and token persistence.
+
+- frontend/src/context/ThemeContext.jsx
+  Light/dark theme state management.
+
+Components
+----------
+Reusable UI units:
+- Navbar, Loader, ProtectedRoute, MedicineCard, SearchAutocomplete,
+  BarcodeScanner, VoiceInput, SectionHeader, SkeletonCard.
+
+Pages
+-----
+Feature screens:
+- AuthPage.jsx
+- DashboardPage.jsx
+- ScanPage.jsx (OCR + barcode + voice assisted medicine detection)
+- ComparePage.jsx
+- ChatPage.jsx
+- AnalyticsPage.jsx
+- ProfilePage.jsx
+
+Build Tooling
+-------------
+- vite.config.js
+  Vite config + PWA plugin settings.
+
+- tailwind.config.js / postcss.config.js
+  Tailwind and PostCSS setup.
+
+
+Runtime Flow (High-Level)
+-------------------------
+1) Frontend sends authenticated API requests to backend.
+2) Backend validates JWT and routes request to controllers.
+3) Controllers call services (search, OCR, AI, analytics).
+4) Services read/write MongoDB models and return structured responses.
+5) Frontend renders medicine cards, OCR matches, and analytics insights.
+
+
+Notes
+-----
+- Keep secrets only in .env files (never hardcode in source).
+- Run frontend and backend as separate dev servers.
+- OCR quality depends on image quality and language/model settings.

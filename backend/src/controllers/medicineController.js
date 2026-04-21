@@ -61,27 +61,33 @@ export const compareMedicines = async (req, res) => {
 export const ocrScan = async (req, res) => {
   const { imageBase64, lang = 'eng', ocrOptions = {} } = req.body;
   const imageBuffer = Buffer.from(imageBase64, 'base64');
-  const data = await ocrService.extractMedicineCandidates(imageBuffer, lang, ocrOptions);
 
+  // Run the full production pipeline (preprocess → OCR → post-process → match)
+  const pipelineResult = await ocrService.fullPipeline(imageBuffer, lang, {
+    mode: ocrOptions.mode,
+    minWordConfidence: ocrOptions.minWordConfidence,
+    maxNgram: ocrOptions.maxNgram,
+    matchLimit: 5,
+    preprocessOpts: ocrOptions.preprocessOpts
+  });
+
+  // Also run regex-based DB search for top candidates (legacy "matched" field)
   const matched = [];
   const seenTokens = new Set();
-  for (const candidate of data.candidates.slice(0, 10)) {
+  for (const candidate of (pipelineResult.candidates || []).slice(0, 8)) {
     const results = await medicineService.search(candidate);
     if (results.length) {
       matched.push({ candidate, matches: results.slice(0, 3) });
       continue;
     }
-
     const tokenized = candidate
       .split(/\s+/)
-      .map((token) => token.replace(/[^a-zA-Z]/g, '').trim())
-      .filter((token) => token.length >= 4);
-
+      .map((t) => t.replace(/[^a-zA-Z]/g, '').trim())
+      .filter((t) => t.length >= 4);
     for (const token of tokenized) {
-      const normalized = token.toLowerCase();
-      if (seenTokens.has(normalized)) continue;
-      seenTokens.add(normalized);
-
+      const norm = token.toLowerCase();
+      if (seenTokens.has(norm)) continue;
+      seenTokens.add(norm);
       const tokenResults = await medicineService.search(token);
       if (tokenResults.length) {
         matched.push({ candidate: token, matches: tokenResults.slice(0, 3) });
@@ -89,52 +95,22 @@ export const ocrScan = async (req, res) => {
     }
   }
 
-  const fuzzyDetected = await medicineService.matchBestFromCandidates(
-    [...data.candidates, ...(data.wordTokens || [])],
-    8
-  );
-
-  const detectedMedicines = fuzzyDetected.map((item) => ({
-    candidate: item.candidate,
-    score: item.score,
-    medicine: item.medicine
-  }));
-
-  const suggestionSet = new Map();
-  const suggestionTokens = [...(data.wordTokens || []), ...data.candidates]
-    .map((token) => token.trim())
-    .filter((token) => token.length >= 4)
-    .slice(0, 30);
-
-  for (const token of suggestionTokens) {
-    const suggestions = await medicineService.autocomplete(token.slice(0, 8));
-    for (const item of suggestions.slice(0, 3)) {
-      if (!item?.name) continue;
-      if (!suggestionSet.has(item.name.toLowerCase())) {
-        suggestionSet.set(item.name.toLowerCase(), {
-          basedOn: token,
-          name: item.name,
-          genericName: item.genericName || '',
-          category: item.category || ''
-        });
-      }
-    }
-    if (suggestionSet.size >= 12) break;
-  }
-
-  const suggestions = Array.from(suggestionSet.values()).slice(0, 12);
-
   res.status(200).json({
     success: true,
     data: {
-      confidence: data.confidence,
-      ocrMode: data.ocrMode,
-      candidates: data.candidates,
+      confidence: pipelineResult.confidence,
+      bestPassConfidence: pipelineResult.bestPassConfidence,
+      passCount: pipelineResult.passCount,
+      fallbackUsed: pipelineResult.fallbackUsed,
+      ocrMode: pipelineResult.ocrMode,
+      preprocessMeta: pipelineResult.preprocessMeta,
+      candidates: pipelineResult.candidates,
       matched,
-      detectedMedicines,
-      suggestions,
-      wordTokens: data.wordTokens || [],
-      rawText: data.rawText
+      detectedMedicines: pipelineResult.detectedMedicines,
+      suggestions: pipelineResult.suggestions,
+      wordTokens: pipelineResult.wordTokens,
+      rawText: pipelineResult.rawText,
+      elapsedMs: pipelineResult.elapsedMs
     }
   });
 };

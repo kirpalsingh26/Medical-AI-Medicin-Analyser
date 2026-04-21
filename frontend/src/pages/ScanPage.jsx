@@ -332,25 +332,17 @@ const preprocessImageToBase64 = async (file) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return reject(new Error('Canvas context not available'));
 
-      const maxWidth = 1600;
+      // Only resize for bandwidth — server handles all preprocessing
+      // (contrast, threshold, multi-variant, etc.) properly with sharp
+      const maxWidth = 2400;
       const scale = Math.min(1, maxWidth / image.width);
       canvas.width = Math.max(1, Math.floor(image.width * scale));
       canvas.height = Math.max(1, Math.floor(image.height * scale));
 
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const { data } = frame;
 
-      for (let i = 0; i < data.length; i += 4) {
-        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        const contrasted = Math.min(255, Math.max(0, (gray - 128) * 1.35 + 128));
-        const bin = contrasted > 145 ? 255 : 0;
-        data[i] = bin;
-        data[i + 1] = bin;
-        data[i + 2] = bin;
-      }
-
-      ctx.putImageData(frame, 0, 0);
       const optimized = canvas.toDataURL('image/png').split(',')[1];
       resolve(optimized);
     };

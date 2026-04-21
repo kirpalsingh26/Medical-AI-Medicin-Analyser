@@ -36,7 +36,11 @@ const AuthPage = () => {
       }
       navigate('/');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Authentication failed');
+      if (!err?.response) {
+        setError('Server unreachable. Start backend and try again.');
+      } else {
+        setError(err?.response?.data?.message || 'Authentication failed');
+      }
     }
   };
 

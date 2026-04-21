@@ -1,243 +1,251 @@
+/**
+ * ocrService.js – Production-grade multi-pass Tesseract OCR service.
+ *
+ * Features:
+ *  • Server-side preprocessing via preprocess.js (sharp).
+ *  • Multi-pass recognition: PSM 3, 4, 6, 11 with OEM 1 (LSTM).
+ *  • Multi-language support (eng, eng+hin).
+ *  • Confidence-based result merging across passes.
+ *  • Post-processing via postProcess.js.
+ *  • Fuzzy + phonetic matching via matcher.js.
+ *  • Hybrid fallback stub (low-confidence → cloud OCR if configured).
+ */
+
 import Tesseract from 'tesseract.js';
+import { preprocessImage } from './preprocess.js';
+import { postProcessOcr } from './postProcess.js';
+import { matchCandidates, suggestFromTokens } from './matcher.js';
+import { logger } from '../config/logger.js';
 
-const OCR_STOPWORDS = new Set([
-  'tab',
-  'tabs',
-  'tablet',
-  'tablets',
-  'cap',
-  'caps',
-  'capsule',
-  'capsules',
-  'syrup',
-  'suspension',
-  'injection',
-  'mrp',
-  'batch',
-  'mfg',
-  'exp',
-  'expiry',
-  'date',
-  'strip',
-  'dosage',
-  'use',
-  'uses',
-  'each',
-  'qty',
-  'rx',
-  'no',
-  'of',
-  'for',
-  'and',
-  'the',
-  'with',
-  'per',
-  'mg',
-  'ml',
-  'mcg',
-  'gm'
-]);
+/* ── constants ───────────────────────────────────────────────────────── */
 
-const normalizeMedicineToken = (value) =>
-  String(value || '')
-    .replace(/[0]/g, 'o')
-    .replace(/[1]/g, 'l')
-    .replace(/[5]/g, 's')
-    .replace(/[8]/g, 'b')
-    .replace(/[6]/g, 'g')
-    .replace(/[^a-zA-Z0-9\s-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+/** Page segmentation modes to try (ordered by typical usefulness). */
+const PSM_MODES = [6, 3, 4, 11];
 
-const normalizeForKey = (value) => normalizeMedicineToken(value).toLowerCase();
+/** Minimum overall confidence to accept without fallback. */
+const CONFIDENCE_FALLBACK_THRESHOLD = 35;
 
-const looksLikeMedicine = (token) => {
-  const normalized = normalizeForKey(token);
-  if (!normalized) return false;
-  if (OCR_STOPWORDS.has(normalized)) return false;
-  if (/^\d+$/.test(normalized)) return false;
-  if (/^\d+(mg|ml|mcg|gm)$/i.test(normalized)) return false;
+/* ── internal helpers ────────────────────────────────────────────────── */
 
-  return /^[a-z][a-z0-9-]{2,}$/.test(normalized);
+/**
+ * Run a single Tesseract recognition pass.
+ */
+const recognizePass = async (imageBuffer, lang, psm, oem = 1) => {
+  try {
+    const { data } = await Tesseract.recognize(imageBuffer, lang, {
+      tessedit_pageseg_mode: String(psm),
+      tessedit_ocr_engine_mode: String(oem),
+      preserve_interword_spaces: '1'
+    });
+    return data;
+  } catch (err) {
+    logger.warn(`Tesseract pass PSM=${psm} OEM=${oem} failed: ${err.message}`);
+    return null;
+  }
 };
 
-const scoreBoostForToken = (token) => {
-  const normalized = normalizeForKey(token);
-  if (normalized.length >= 8) return 0.12;
-  if (normalized.length >= 5) return 0.08;
-  return 0.04;
-};
-
-const addCandidateScore = (store, candidate, score) => {
-  const normalized = normalizeMedicineToken(candidate);
-  const key = normalizeForKey(candidate);
-  if (!normalized || !key) return;
-  if (OCR_STOPWORDS.has(key)) return;
-
-  const existing = store.get(key);
-  if (!existing) {
-    store.set(key, { value: normalized, score });
-    return;
+/**
+ * Merge word-level results from multiple passes.
+ * For duplicate words keeps the one with higher confidence.
+ */
+const mergePassResults = (passes) => {
+  const validPasses = passes.filter(Boolean);
+  if (!validPasses.length) {
+    return { text: '', confidence: 0, words: [], passCount: 0, bestPassConfidence: 0 };
   }
 
-  existing.score = Math.max(existing.score, score);
+  validPasses.sort((a, b) => (b.confidence || 0) - (a.confidence || 0));
+  const best = validPasses[0];
+
+  const wordMap = new Map();
+  for (const pass of validPasses) {
+    for (const w of pass.words || []) {
+      const key = (w.text || '').toLowerCase().trim();
+      if (!key) continue;
+      const existing = wordMap.get(key);
+      if (!existing || (w.confidence || 0) > (existing.confidence || 0)) {
+        wordMap.set(key, w);
+      }
+    }
+  }
+
+  const mergedWords = Array.from(wordMap.values());
+  const avgConfidence = mergedWords.length > 0
+    ? mergedWords.reduce((s, w) => s + (w.confidence || 0), 0) / mergedWords.length
+    : best.confidence || 0;
+
+  const lineSet = new Set();
+  let combinedText = '';
+  for (const pass of validPasses) {
+    for (const line of (pass.text || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
+      const key = line.toLowerCase();
+      if (!lineSet.has(key)) {
+        lineSet.add(key);
+        combinedText += line + '\n';
+      }
+    }
+  }
+
+  return {
+    text: combinedText.trim(),
+    confidence: Number(avgConfidence.toFixed(2)),
+    words: mergedWords.map((w) => ({
+      text: w.text || '',
+      confidence: Number((w.confidence || 0).toFixed(2))
+    })),
+    passCount: validPasses.length,
+    bestPassConfidence: Number((best.confidence || 0).toFixed(2))
+  };
 };
 
-const recognizeWithPsm = async (imagePathOrBuffer, lang, psm) => {
-  const { data } = await Tesseract.recognize(imagePathOrBuffer, lang, {
-    tessedit_pageseg_mode: String(psm),
-    preserve_interword_spaces: '1'
-  });
-  return data;
+/* ── cloud OCR fallback stub ─────────────────────────────────────────── */
+
+/**
+ * Fallback to Google Vision when Tesseract confidence is below threshold.
+ * Set GOOGLE_VISION_API_KEY in .env to enable.
+ */
+const cloudOcrFallback = async (imageBuffer, _lang) => {
+  const apiKey = process.env.GOOGLE_VISION_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const base64 = imageBuffer.toString('base64');
+    const body = {
+      requests: [{
+        image: { content: base64 },
+        features: [{ type: 'TEXT_DETECTION', maxResults: 1 }]
+      }]
+    };
+
+    const resp = await fetch(
+      `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    );
+
+    if (!resp.ok) {
+      logger.warn(`Cloud OCR HTTP ${resp.status}`);
+      return null;
+    }
+
+    const json = await resp.json();
+    const annotation = json.responses?.[0]?.fullTextAnnotation;
+    if (!annotation) return null;
+
+    logger.info('Cloud OCR fallback returned text');
+    return {
+      text: annotation.text || '',
+      confidence: 85,
+      words: (annotation.text || '').split(/\s+/).map((t) => ({ text: t, confidence: 85 }))
+    };
+  } catch (err) {
+    logger.warn(`Cloud OCR fallback error: ${err.message}`);
+    return null;
+  }
 };
+
+/* ── public API ──────────────────────────────────────────────────────── */
 
 export const ocrService = {
-  extractTextWithConfidence: async (imagePathOrBuffer, lang = 'eng', options = {}) => {
-    const mode = options.mode || 'balanced';
+  /**
+   * Full OCR pipeline: preprocess → multi-pass Tesseract → merge →
+   * optional cloud fallback → post-process → fuzzy match.
+   */
+  async fullPipeline(rawImageBuffer, lang = 'eng', opts = {}) {
+    const start = Date.now();
+    const mode = opts.mode || 'balanced';
 
-    let data;
-    if (mode === 'accurate') {
-      const passes = await Promise.all([
-        recognizeWithPsm(imagePathOrBuffer, lang, 6),
-        recognizeWithPsm(imagePathOrBuffer, lang, 11)
-      ]);
-      data = passes.sort((a, b) => (b.confidence || 0) - (a.confidence || 0))[0];
-    } else if (mode === 'fast') {
-      data = await recognizeWithPsm(imagePathOrBuffer, lang, 11);
+    // 1. Preprocess — returns multiple image variants
+    const { buffer: preprocessedBuffer, variants = [], meta: preprocessMeta } =
+      await preprocessImage(rawImageBuffer, opts.preprocessOpts);
+
+    // 2. Multi-pass Tesseract across preprocessing variants
+    let psmModes;
+    if (mode === 'fast') {
+      psmModes = [6];
+    } else if (mode === 'accurate') {
+      psmModes = PSM_MODES;
     } else {
-      const primary = await recognizeWithPsm(imagePathOrBuffer, lang, 6);
-      if ((primary.confidence || 0) >= 60) {
-        data = primary;
-      } else {
-        const secondary = await recognizeWithPsm(imagePathOrBuffer, lang, 11);
-        data = (secondary.confidence || 0) > (primary.confidence || 0) ? secondary : primary;
+      psmModes = [6, 3, 11];
+    }
+
+    const imagesToProcess = variants.length > 0 ? variants : [preprocessedBuffer];
+
+    // Primary passes: all PSM modes on the best variant
+    const primaryPasses = await Promise.all(
+      psmModes.map((psm) => recognizePass(imagesToProcess[0], lang, psm, 1))
+    );
+
+    // Supplementary passes: PSM 6 on remaining variants for extra coverage.
+    const supplementaryPasses = await Promise.all(
+      imagesToProcess.slice(1).map((v) => recognizePass(v, lang, 6, 1))
+    );
+
+    const allPasses = [...primaryPasses, ...supplementaryPasses];
+
+    const merged = mergePassResults(allPasses);
+
+    // 3. Hybrid fallback
+    let fallbackUsed = false;
+    if (merged.confidence < CONFIDENCE_FALLBACK_THRESHOLD) {
+      logger.info(`Confidence ${merged.confidence}% below threshold, trying cloud fallback…`);
+      const cloudResult = await cloudOcrFallback(preprocessedBuffer, lang);
+      if (cloudResult) {
+        const cloudMerged = mergePassResults([
+          { text: merged.text, confidence: merged.confidence, words: merged.words },
+          { text: cloudResult.text, confidence: cloudResult.confidence, words: cloudResult.words }
+        ]);
+        Object.assign(merged, cloudMerged);
+        fallbackUsed = true;
       }
     }
 
-    const words = data.words || [];
-    const avgConfidence =
-      words.length > 0
-        ? words.reduce((sum, w) => sum + (w.confidence || 0), 0) / words.length
-        : data.confidence || 0;
+    // 4. Post-process
+    const postProcessed = postProcessOcr(merged, {
+      minWordConfidence: opts.minWordConfidence,
+      maxNgram: opts.maxNgram
+    });
+
+    // 5. Fuzzy + phonetic matching
+    const matchLimit = Number(opts.matchLimit) || 5;
+    const topMatches = await matchCandidates(
+      [...postProcessed.candidates, ...postProcessed.wordTokens],
+      { limit: matchLimit, minScore: 0.48 }
+    );
+
+    // 6. Suggestions
+    const suggestions = await suggestFromTokens(
+      [...postProcessed.wordTokens, ...postProcessed.candidates],
+      { limit: 12 }
+    );
+
+    const elapsed = Date.now() - start;
+    logger.info(`OCR pipeline completed in ${elapsed}ms, ${topMatches.length} matches, confidence=${merged.confidence}%`);
 
     return {
-      text: data.text || '',
-      confidence: Number(avgConfidence.toFixed(2)),
-      words: words.map((w) => ({
-        text: normalizeMedicineToken(w.text),
-        confidence: Number((w.confidence || 0).toFixed(2))
-      }))
+      confidence: merged.confidence,
+      bestPassConfidence: merged.bestPassConfidence,
+      passCount: merged.passCount,
+      fallbackUsed,
+      ocrMode: mode,
+      preprocessMeta,
+      candidates: postProcessed.candidates,
+      wordTokens: postProcessed.wordTokens,
+      rawText: postProcessed.rawText,
+      detectedMedicines: topMatches.map((m) => ({
+        candidate: m.candidate,
+        score: m.score,
+        matchedBy: m.matchedBy,
+        medicine: m.medicine
+      })),
+      suggestions,
+      elapsedMs: elapsed
     };
   },
 
-  extractMedicineCandidates: async (imagePathOrBuffer, lang = 'eng', options = {}) => {
-    const minWordConfidence = Number(options.minWordConfidence ?? 42);
-    const maxNgram = Math.min(4, Math.max(2, Number(options.maxNgram ?? 3)));
-
-    const { text, confidence, words } = await ocrService.extractTextWithConfidence(
-      imagePathOrBuffer,
-      lang,
-      options
-    );
-
-    const cleanedText = normalizeMedicineToken(text);
-    const lines = text
-      .split(/\r?\n/)
-      .map((line) => normalizeMedicineToken(line))
-      .filter(Boolean);
-
-    const scoredCandidates = new Map();
-
-    const lineCandidates = lines
-      .flatMap((line) =>
-        line
-          .split(/[,;|:/]+/)
-          .map((part) => normalizeMedicineToken(part))
-          .filter(Boolean)
-      )
-      .filter((line) => line.length >= 3)
-      .slice(0, 36);
-
-    for (const line of lineCandidates) {
-      const lineKey = normalizeForKey(line);
-      if (OCR_STOPWORDS.has(lineKey)) continue;
-
-      const lineWords = line
-        .split(/\s+/)
-        .map((token) => normalizeMedicineToken(token))
-        .filter((token) => looksLikeMedicine(token));
-
-      if (!lineWords.length) continue;
-      addCandidateScore(scoredCandidates, lineWords.join(' '), 0.52 + Math.min(0.2, lineWords.length * 0.05));
-    }
-
-    const confidentWordTokens = (words || [])
-      .filter((w) => w.confidence >= minWordConfidence)
-      .map((w) => ({
-        token: normalizeMedicineToken(w.text),
-        confidence: Number(w.confidence || 0)
-      }))
-      .filter((w) => looksLikeMedicine(w.token));
-
-    for (const item of confidentWordTokens) {
-      const baseScore = 0.45 + Math.min(0.4, item.confidence / 200) + scoreBoostForToken(item.token);
-      addCandidateScore(scoredCandidates, item.token, baseScore);
-    }
-
-    const textTokens = cleanedText
-      .split(/\s+/)
-      .map((token) => token.trim())
-      .filter((token) => looksLikeMedicine(token));
-
-    for (const token of textTokens) {
-      addCandidateScore(scoredCandidates, token, 0.36 + scoreBoostForToken(token));
-    }
-
-    const ngramCandidates = [];
-    const mergedTokens = Array.from(
-      new Map(
-        [...confidentWordTokens.map((w) => [normalizeForKey(w.token), w]), ...textTokens.map((t) => [normalizeForKey(t), { token: t, confidence: minWordConfidence }])]
-      ).values()
-    ).slice(0, 70);
-
-    for (let i = 0; i < mergedTokens.length; i += 1) {
-      for (let size = 1; size <= maxNgram; size += 1) {
-        const chunk = mergedTokens.slice(i, i + size);
-        if (!chunk.length) continue;
-
-        const ngram = chunk
-          .map((item) => item.token)
-          .join(' ')
-          .trim();
-
-        if (ngram.length < 3) continue;
-
-        const avgChunkConfidence = chunk.reduce((sum, item) => sum + item.confidence, 0) / chunk.length;
-        const ngramScore = 0.42 + Math.min(0.32, avgChunkConfidence / 220) + Math.min(0.12, (size - 1) * 0.05);
-        ngramCandidates.push({ value: ngram, score: ngramScore });
-      }
-    }
-
-    for (const ngram of ngramCandidates) {
-      addCandidateScore(scoredCandidates, ngram.value, ngram.score);
-    }
-
-    const deduped = Array.from(scoredCandidates.values())
-      .sort((a, b) => b.score - a.score || a.value.length - b.value.length)
-      .map((item) => item.value)
-      .filter(Boolean)
-      .slice(0, 50);
-
-    const topWordTokens = Array.from(
-      new Set(confidentWordTokens.map((w) => normalizeMedicineToken(w.token)).filter(Boolean))
-    ).slice(0, 40);
-
-    return {
-      candidates: deduped,
-      confidence,
-      rawText: text,
-      wordTokens: topWordTokens,
-      ocrMode: options.mode || 'balanced'
-    };
+  /**
+   * Legacy compatibility wrapper.
+   */
+  async extractMedicineCandidates(imageBuffer, lang = 'eng', options = {}) {
+    return this.fullPipeline(imageBuffer, lang, options);
   }
 };

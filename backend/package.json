@@ -10,7 +10,8 @@
     "start": "node src/server.js",
     "seed": "node src/scripts/seedMedicines.js",
     "seed:india": "node src/scripts/seedIndianMedicines.js",
-    "import:csv": "node src/scripts/importMedicinesCsv.js"
+    "import:csv": "node src/scripts/importMedicinesCsv.js",
+    "eval:ocr": "node src/scripts/evaluateOcr.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -18,11 +19,15 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.1",
+    "fuse.js": "^7.3.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.2",
     "morgan": "^1.10.0",
+    "natural": "^8.1.1",
     "node-cache": "^5.1.2",
+    "sharp": "^0.34.5",
+    "string-similarity": "^4.0.4",
     "tesseract.js": "^5.1.1",
     "winston": "^3.16.0"
   },
