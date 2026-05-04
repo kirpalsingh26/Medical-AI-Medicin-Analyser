@@ -305,115 +305,198 @@ def easyocr_extract(img_bytes: bytes) -> str:
         return ""
 
 
-# Known medicine → info lookup (covers most common Indian OTC medicines)
+# Known medicine → info lookup (covers most common Indian OTC/Rx medicines)
+# Keys are lowercase substrings to match against detected text
 MEDICINE_KB: dict[str, dict] = {
     "dolo": {
-        "genericName": "Paracetamol", "manufacturer": "Micro Labs Ltd",
+        "brandName": "Dolo 650", "genericName": "Paracetamol", "manufacturer": "Micro Labs Ltd",
         "uses": ["Fever", "Mild to moderate pain", "Headache", "Body ache"],
         "sideEffects": ["Nausea", "Allergic reactions (rare)", "Liver damage with overdose"],
-        "howToUse": "650mg every 4-6 hours, max 4 doses/day. Take with or without food.",
+        "howToUse": "650mg every 4–6 hours, max 4 doses/day. Take with or without food.",
         "storage": "Store below 30°C, away from moisture.", "warnings": ["Do not exceed 4g/day", "Avoid alcohol"]
     },
     "paracetamol": {
-        "genericName": "Paracetamol (Acetaminophen)",
-        "uses": ["Fever", "Pain relief", "Headache"],
+        "brandName": "Paracetamol", "genericName": "Paracetamol (Acetaminophen)",
+        "uses": ["Fever", "Pain relief", "Headache", "Body ache"],
         "sideEffects": ["Nausea", "Liver damage with overdose"],
-        "howToUse": "500–1000mg every 4-6 hours as needed.", "warnings": ["Max 4g/day", "Avoid with alcohol"]
+        "howToUse": "500–1000mg every 4–6 hours as needed.", "warnings": ["Max 4g/day", "Avoid with alcohol"]
     },
     "azithromycin": {
-        "genericName": "Azithromycin", "manufacturer": "Various",
+        "brandName": "Azithromycin", "genericName": "Azithromycin",
         "uses": ["Bacterial infections", "Respiratory tract infections", "Skin infections", "Ear infections"],
         "sideEffects": ["Nausea", "Diarrhoea", "Abdominal pain", "Headache"],
-        "howToUse": "500mg once daily for 3 days. Take on empty stomach.",
+        "howToUse": "500mg once daily for 3 days, OR 250mg once daily for 5 days. Take on empty stomach.",
         "storage": "Store below 30°C.", "warnings": ["Complete full course", "Inform doctor of heart conditions"]
     },
     "amoxicillin": {
-        "genericName": "Amoxicillin",
+        "brandName": "Amoxicillin", "genericName": "Amoxicillin",
         "uses": ["Bacterial infections", "Ear, nose, throat infections", "Urinary tract infections"],
         "sideEffects": ["Diarrhoea", "Nausea", "Skin rash", "Allergic reactions"],
         "howToUse": "250–500mg every 8 hours with or without food.", "warnings": ["Avoid if penicillin allergy"]
     },
     "ibuprofen": {
-        "genericName": "Ibuprofen",
-        "uses": ["Pain", "Fever", "Inflammation", "Arthritis"],
+        "brandName": "Ibuprofen", "genericName": "Ibuprofen",
+        "uses": ["Pain relief", "Fever", "Inflammation", "Arthritis"],
         "sideEffects": ["Stomach upset", "Nausea", "Headache", "Increased blood pressure"],
-        "howToUse": "200–400mg every 4-6 hours. Always take with food.", "warnings": ["Avoid on empty stomach", "Not for kidney/heart patients"]
+        "howToUse": "200–400mg every 4–6 hours. Always take with food.", "warnings": ["Avoid on empty stomach", "Not for kidney/heart patients"]
     },
     "cetirizine": {
-        "genericName": "Cetirizine Hydrochloride",
+        "brandName": "Cetirizine", "genericName": "Cetirizine Hydrochloride",
         "uses": ["Allergic rhinitis", "Urticaria (hives)", "Itching", "Hay fever"],
         "sideEffects": ["Drowsiness", "Dry mouth", "Headache"],
         "howToUse": "10mg once daily at night.", "warnings": ["Avoid driving", "Avoid alcohol"]
     },
     "omeprazole": {
-        "genericName": "Omeprazole",
+        "brandName": "Omeprazole", "genericName": "Omeprazole",
         "uses": ["Acid reflux", "GERD", "Peptic ulcer", "H. pylori infection"],
         "sideEffects": ["Headache", "Diarrhoea", "Nausea", "Abdominal pain"],
         "howToUse": "20mg once daily before meal.", "warnings": ["Long-term use may affect magnesium levels"]
     },
     "metformin": {
-        "genericName": "Metformin Hydrochloride",
+        "brandName": "Metformin", "genericName": "Metformin Hydrochloride",
         "uses": ["Type 2 diabetes management", "Blood sugar control"],
         "sideEffects": ["Nausea", "Diarrhoea", "Stomach upset", "Lactic acidosis (rare)"],
         "howToUse": "500mg twice daily with meals.", "warnings": ["Monitor kidney function", "Avoid alcohol"]
     },
     "atorvastatin": {
-        "genericName": "Atorvastatin",
+        "brandName": "Atorvastatin", "genericName": "Atorvastatin Calcium",
         "uses": ["High cholesterol", "Prevention of heart attack and stroke"],
         "sideEffects": ["Muscle pain", "Liver enzyme elevation", "Headache"],
         "howToUse": "10–40mg once daily at night.", "warnings": ["Report unexplained muscle pain", "Avoid grapefruit juice"]
     },
     "pantoprazole": {
-        "genericName": "Pantoprazole Sodium",
+        "brandName": "Pantoprazole", "genericName": "Pantoprazole Sodium",
         "uses": ["Acid reflux", "GERD", "Erosive esophagitis", "Zollinger-Ellison syndrome"],
         "sideEffects": ["Headache", "Diarrhoea", "Nausea"],
         "howToUse": "40mg once daily before breakfast.", "warnings": ["Long-term use may cause hypomagnesemia"]
     },
+    # ── Additional medicines from test images ──────────────────────────────────
+    "bosutinib": {
+        "brandName": "Bosutris", "genericName": "Bosutinib", "manufacturer": "Mylan / Pfizer",
+        "uses": ["Chronic myelogenous leukemia (CML)", "Philadelphia chromosome-positive CML"],
+        "sideEffects": ["Diarrhoea", "Nausea", "Rash", "Fatigue", "Liver toxicity"],
+        "howToUse": "500mg once daily with food. Do not crush/split tablets.",
+        "storage": "Store at room temperature 20–25°C.", "warnings": ["Monitor liver function tests", "Not for use in pregnancy", "Report unusual bleeding"]
+    },
+    "bosutris": {
+        "brandName": "Bosutris", "genericName": "Bosutinib", "manufacturer": "Mylan",
+        "uses": ["Chronic myelogenous leukemia (CML)"],
+        "sideEffects": ["Diarrhoea", "Nausea", "Rash", "Fatigue"],
+        "howToUse": "500mg once daily with food.", "warnings": ["Monitor liver function", "Not in pregnancy"]
+    },
+    "cefixime": {
+        "brandName": "Zifi 200", "genericName": "Cefixime", "manufacturer": "FDC Limited",
+        "uses": ["Bacterial infections", "Urinary tract infections", "Ear infections", "Gonorrhoea"],
+        "sideEffects": ["Diarrhoea", "Stomach pain", "Nausea", "Rash"],
+        "howToUse": "200–400mg once or twice daily. May be taken with or without food.",
+        "storage": "Store below 30°C.", "warnings": ["Complete full course", "Avoid if cephalosporin allergy"]
+    },
+    "zifi": {
+        "brandName": "Zifi 200", "genericName": "Cefixime", "manufacturer": "FDC Limited",
+        "uses": ["Bacterial infections", "Urinary tract infections", "Respiratory infections"],
+        "sideEffects": ["Diarrhoea", "Nausea", "Stomach upset"],
+        "howToUse": "200mg twice daily or 400mg once daily.", "warnings": ["Complete full course"]
+    },
+    "cilnidipine": {
+        "brandName": "Nulong / Cilnidipine", "genericName": "Cilnidipine", "manufacturer": "Various",
+        "uses": ["Hypertension (high blood pressure)", "Angina"],
+        "sideEffects": ["Headache", "Dizziness", "Flushing", "Ankle swelling", "Palpitations"],
+        "howToUse": "5–10mg once daily before or after meals.",
+        "storage": "Store below 30°C.", "warnings": ["Do not stop abruptly", "Caution in elderly patients", "Monitor BP regularly"]
+    },
+    "nulong": {
+        "brandName": "Nulong", "genericName": "Cilnidipine", "manufacturer": "Mankind Pharma",
+        "uses": ["Hypertension", "Prevention of angina"],
+        "sideEffects": ["Headache", "Dizziness", "Flushing", "Ankle swelling"],
+        "howToUse": "10–20mg once daily.", "warnings": ["Do not stop abruptly", "Monitor BP"]
+    },
+    "zandu": {
+        "brandName": "Zandu Nityam", "genericName": "Ayurvedic herbal formulation", "manufacturer": "Zandu Pharmaceutical Works",
+        "uses": ["Constipation relief", "Bowel regularity", "Digestive wellness"],
+        "sideEffects": ["Mild abdominal cramping if overused", "Loose stools"],
+        "howToUse": "1–2 tablets at bedtime with warm water.",
+        "storage": "Store in a cool dry place.", "warnings": ["Not for chronic use", "Consult doctor if symptoms persist"]
+    },
+    "nityam": {
+        "brandName": "Zandu Nityam", "genericName": "Ayurvedic herbal laxative", "manufacturer": "Zandu Pharmaceutical Works",
+        "uses": ["Constipation", "Bowel regularity"],
+        "sideEffects": ["Mild cramps", "Loose stools"],
+        "howToUse": "1–2 tablets at bedtime with warm water.", "warnings": ["Not for long-term use"]
+    },
+}
+
+# Skip words that are NOT medicine names
+_NAME_SKIP = {
+    "tablet", "tablets", "capsule", "capsules", "syrup", "injection", "each",
+    "contains", "uses", "store", "strip", "blister", "keep", "children",
+    "reach", "away", "before", "expiry", "date", "batch", "mfg", "manufactured",
+    "distributed", "marketed", "ltd", "limited", "pvt", "corp", "pharma",
+    "pharmaceutical", "laboratories", "lab", "usp", "ip", "bp", "regd",
+    "trademark", "registered", "product", "film", "coated", "directions",
 }
 
 
 def enrich_from_kb(name: str, raw_text: str) -> dict:
-    """Look up medicine knowledge base by fuzzy name match."""
-    name_lower = name.lower()
-    raw_lower = raw_text.lower()
+    """Look up medicine knowledge base by substring match. Prefers longer key matches."""
+    combined = (name + " " + raw_text).lower()
+    best_key = ""
+    best_info: dict = {}
     for key, info in MEDICINE_KB.items():
-        if key in name_lower or key in raw_lower:
-            return info
-    return {}
+        if key in combined and len(key) > len(best_key):
+            best_key = key
+            best_info = info
+    return best_info
 
 
 def parse_medicine_from_ocr(raw_text: str) -> dict:
-    """Best-effort structured parse of raw OCR text from a medicine label."""
+    """Best-effort structured parse of raw EasyOCR text from a medicine label."""
     lines = [l.strip() for l in raw_text.split("\n") if l.strip()]
+    all_text = " ".join(lines)
     name = ""
     dosage = ""
 
-    # Dosage pattern: e.g. "650mg", "500 mg", "10mg/5ml"
-    dosage_pat = re.compile(r'(\d+\.?\d*\s*(?:mg|mcg|ml|g|iu|%)(?:/\d+\s*(?:mg|ml))?)', re.IGNORECASE)
-    # Medicine name pattern: capitalised word optionally followed by dosage
-    name_pat = re.compile(r'\b([A-Z][a-zA-Z]{3,}(?:\s+[A-Z][a-zA-Z]{2,})?)\s*\d*(?:mg|mcg)?', re.MULTILINE)
+    # ── dosage: 650mg, 500 mg, 10mg/5ml, 20mg ─────────────────────────────
+    dosage_pat = re.compile(
+        r'(\d+\.?\d*\s*(?:mg|mcg|ml|g|iu|%)(?:/\d+\s*(?:mg|ml))?)',
+        re.IGNORECASE
+    )
+    dm = dosage_pat.search(all_text)
+    if dm:
+        dosage = dm.group(0).strip()
 
-    for line in lines[:6]:  # focus on first few lines of label
-        dm = dosage_pat.search(line)
-        if dm and not dosage:
-            dosage = dm.group(0).strip()
-        nm = name_pat.search(line)
-        if nm and not name and len(nm.group(1)) > 3:
-            candidate = nm.group(1).strip()
-            # Skip generic label words
-            skip = {"Tablet", "Capsule", "Syrup", "Injection", "Strip", "Each", "Contains", "Uses"}
-            if candidate not in skip:
-                name = candidate
+    # ── medicine name: prefer KB direct match over OCR parse ───────────────
+    # First try: does the raw text contain a KB key directly?
+    raw_lower = raw_text.lower()
+    kb_direct = ""
+    for key in MEDICINE_KB:
+        if key in raw_lower and len(key) > len(kb_direct):
+            kb_direct = key
 
-    if not name and lines:
-        name = lines[0][:40]
+    if kb_direct:
+        # Use KB brand name as the identified name
+        name = MEDICINE_KB[kb_direct].get("brandName", kb_direct.title())
+    else:
+        # Fallback: extract longest capitalised token that isn't a skip word
+        # Look in first 8 lines for best candidate
+        cap_pat = re.compile(r'\b([A-Za-z][a-zA-Z]{3,})\b')
+        candidates: list[tuple[int, str]] = []
+        for line in lines[:8]:
+            for m in cap_pat.finditer(line):
+                word = m.group(1)
+                if word.lower() not in _NAME_SKIP and not word.isdigit():
+                    # Score: longer words score higher; proper-case gets bonus
+                    score = len(word) + (2 if word[0].isupper() else 0)
+                    candidates.append((score, word))
+        if candidates:
+            candidates.sort(reverse=True)
+            name = candidates[0][1]
 
     kb = enrich_from_kb(name, raw_text)
     return {
-        "name": name,
+        "name": kb.get("brandName", name) if kb else name,
         "genericName": kb.get("genericName", ""),
         "manufacturer": kb.get("manufacturer", ""),
-        "dosage": dosage or kb.get("dosage", ""),
+        "dosage": dosage or "",
         "uses": kb.get("uses", []),
         "sideEffects": kb.get("sideEffects", []),
         "howToUse": kb.get("howToUse", ""),
