@@ -4,4 +4,4 @@ node_modules
 dist
 coverage
 *.log
-backend/uploads
+backend/uploadsbackend/ocr_service/__pycache__

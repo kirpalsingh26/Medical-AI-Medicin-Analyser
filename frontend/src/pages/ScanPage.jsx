@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Camera, FileImage, ScanLine, Settings2, Sparkles, WandSparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, BookOpen, Camera, FileImage, Info, Pill, ScanLine, Settings2, Sparkles, WandSparkles, Zap } from 'lucide-react';
 import api from '../api/client';
 import BarcodeScanner from '../components/BarcodeScanner';
 import Loader from '../components/Loader';
@@ -18,6 +18,7 @@ const ScanPage = () => {
   const [ocrConfidence, setOcrConfidence] = useState(null);
   const [ocrCandidates, setOcrCandidates] = useState([]);
   const [ocrSuggestions, setOcrSuggestions] = useState([]);
+  const [aiDetails, setAiDetails] = useState(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [ocrMode, setOcrMode] = useState('balanced');
   const [minWordConfidence, setMinWordConfidence] = useState(42);
@@ -57,6 +58,7 @@ const ScanPage = () => {
       setOcrConfidence(data.data.confidence);
       setOcrCandidates(data.data.candidates || []);
       setOcrSuggestions(data.data.suggestions || []);
+      setAiDetails(data.data.aiDetails || null);
 
       const fromDetected = (data.data.detectedMedicines || [])
         .map((item) => item.medicine)
@@ -90,6 +92,7 @@ const ScanPage = () => {
     setOcrConfidence(null);
     setOcrCandidates([]);
     setOcrSuggestions([]);
+    setAiDetails(null);
     setQuery('');
     setResults([]);
     setPreviewUrl('');
@@ -294,6 +297,124 @@ const ScanPage = () => {
       </section>
 
       <BarcodeScanner onDetected={onBarcodeDetected} />
+
+      {/* ── Gemini AI Detail Card ──────────────────────────────────────────── */}
+      <AnimatePresence>
+        {aiDetails && (
+          <motion.section
+            key="ai-details"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className={`panel rounded-2xl p-6 ${dark ? 'bg-gradient-to-br from-indigo-950/60 to-slate-900/80 border border-indigo-500/20' : 'bg-gradient-to-br from-indigo-50 to-white border border-indigo-200'}`}
+          >
+            {/* Header */}
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className={`mb-1 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest ${dark ? 'text-indigo-300' : 'text-indigo-600'}`}>
+                  <Zap className="h-3.5 w-3.5" /> Gemini AI Analysis
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${dark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700'}`}>
+                    {aiDetails.source?.split(':')[0].toUpperCase()}
+                  </span>
+                </p>
+                <h2 className={`text-2xl font-extrabold ${dark ? 'text-white' : 'text-slate-900'}`}>
+                  {aiDetails.medicineName || 'Unknown Medicine'}
+                </h2>
+                {aiDetails.genericName && (
+                  <p className={`mt-0.5 text-sm ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    Generic: <span className="font-semibold">{aiDetails.genericName}</span>
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <span className={`rounded-xl px-3 py-1 text-sm font-bold ${aiDetails.confidence >= 75 ? (dark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700') : (dark ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-100 text-amber-700')}`}>
+                  {aiDetails.confidence}% confidence
+                </span>
+                {aiDetails.manufacturer && (
+                  <span className={`text-xs ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{aiDetails.manufacturer}</span>
+                )}
+                {aiDetails.dosage && (
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${dark ? 'bg-cyan-500/20 text-cyan-300' : 'bg-cyan-100 text-cyan-700'}`}>
+                    <Pill className="h-3 w-3" /> {aiDetails.dosage}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {/* Uses */}
+              {aiDetails.uses?.length > 0 && (
+                <div className={`rounded-xl p-4 ${dark ? 'bg-slate-800/60 border border-white/5' : 'bg-white border border-slate-200'}`}>
+                  <p className={`mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider ${dark ? 'text-sky-300' : 'text-sky-700'}`}>
+                    <BookOpen className="h-3.5 w-3.5" /> Uses / Indications
+                  </p>
+                  <ul className="space-y-1">
+                    {aiDetails.uses.map((u, i) => (
+                      <li key={i} className={`flex items-start gap-1.5 text-sm ${dark ? 'text-slate-200' : 'text-slate-700'}`}>
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400" />
+                        {u}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Side Effects */}
+              {aiDetails.sideEffects?.length > 0 && (
+                <div className={`rounded-xl p-4 ${dark ? 'bg-slate-800/60 border border-white/5' : 'bg-white border border-slate-200'}`}>
+                  <p className={`mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider ${dark ? 'text-rose-300' : 'text-rose-700'}`}>
+                    <AlertTriangle className="h-3.5 w-3.5" /> Side Effects
+                  </p>
+                  <ul className="space-y-1">
+                    {aiDetails.sideEffects.map((s, i) => (
+                      <li key={i} className={`flex items-start gap-1.5 text-sm ${dark ? 'text-slate-200' : 'text-slate-700'}`}>
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* How to Use + Warnings */}
+              <div className="space-y-3">
+                {aiDetails.howToUse && (
+                  <div className={`rounded-xl p-4 ${dark ? 'bg-slate-800/60 border border-white/5' : 'bg-white border border-slate-200'}`}>
+                    <p className={`mb-1.5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider ${dark ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                      <Info className="h-3.5 w-3.5" /> How to Use
+                    </p>
+                    <p className={`text-sm ${dark ? 'text-slate-200' : 'text-slate-700'}`}>{aiDetails.howToUse}</p>
+                  </div>
+                )}
+                {aiDetails.warnings?.length > 0 && (
+                  <div className={`rounded-xl p-4 ${dark ? 'bg-amber-950/40 border border-amber-500/20' : 'bg-amber-50 border border-amber-200'}`}>
+                    <p className={`mb-1.5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider ${dark ? 'text-amber-300' : 'text-amber-700'}`}>
+                      <AlertTriangle className="h-3.5 w-3.5" /> Warnings
+                    </p>
+                    <ul className="space-y-1">
+                      {aiDetails.warnings.map((w, i) => (
+                        <li key={i} className={`text-sm ${dark ? 'text-amber-100' : 'text-amber-800'}`}>• {w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Detected text */}
+            {aiDetails.detectedText && (
+              <details className="mt-4">
+                <summary className={`cursor-pointer text-xs ${dark ? 'text-slate-400' : 'text-slate-500'} hover:underline`}>
+                  Raw text detected on label
+                </summary>
+                <pre className={`mt-2 max-h-32 overflow-auto rounded-lg p-3 text-xs whitespace-pre-wrap ${dark ? 'bg-slate-900 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
+                  {aiDetails.detectedText}
+                </pre>
+              </details>
+            )}
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {loading ? (
         <Loader text="Analyzing medicine data..." />
