@@ -73,19 +73,43 @@ const buildFuseIndex = async () => {
 
   fuseIndex = new Fuse(fuseData, {
     keys: [
-      { name: 'name', weight: 0.45 },
-      { name: 'genericName', weight: 0.30 },
-      { name: 'aliases', weight: 0.25 }
+      { name: 'name',        weight: 0.50 },
+      { name: 'genericName', weight: 0.28 },
+      { name: 'aliases',     weight: 0.15 },
+      { name: 'dosage',      weight: 0.07 }
     ],
-    threshold: 0.45,
-    distance: 120,
+    threshold: 0.45,        // wider = catches more partial/fuzzy matches
+    distance: 300,           // match across longer medicine names
     includeScore: true,
-    minMatchCharLength: 3
+    minMatchCharLength: 2,
+    ignoreLocation: true,
+    useExtendedSearch: true  // enables prefix ^ and suffix $ operators
   });
 
   fuseBuiltAt = now;
   logger.info(`Fuse index built with ${fuseData.length} medicines`);
 };
+
+/* ── trigram character similarity ───────────────────────────────────── */
+
+const trigramSet = (s) => {
+  const set = new Set();
+  const p = `  ${s}  `;
+  for (let i = 0; i < p.length - 2; i++) set.add(p.slice(i, i + 3));
+  return set;
+};
+
+const trigramSimilarity = (a, b) => {
+  if (!a || !b) return 0;
+  const sa = trigramSet(a);
+  const sb = trigramSet(b);
+  let inter = 0;
+  for (const t of sa) if (sb.has(t)) inter++;
+  return (2 * inter) / (sa.size + sb.size);
+};
+
+/** Strip trailing strength number: "dolo 650" → "dolo", "azithral500" → "azithral" */
+const stripStrength = (s) => s.replace(/[\s-]?\d{2,4}(mg|ml|mcg|gm|iu)?$/i, '').trim();
 
 /* ── composite scoring ───────────────────────────────────────────────── */
 
@@ -95,6 +119,7 @@ const buildFuseIndex = async () => {
  */
 const compositeScore = (candidate, med) => {
   const normCand = normalizeKey(candidate);
+  const strippedCand = stripStrength(normCand); // e.g. "dolo" from "dolo 650"
 
   const targets = [
     med.name || '',
@@ -105,24 +130,58 @@ const compositeScore = (candidate, med) => {
   let bestLev = 0;
   let bestDice = 0;
   let bestPhonetic = 0;
+  let bestTrigram = 0;
 
   for (const target of targets) {
-    bestLev = Math.max(bestLev, levSimilarity(normCand, target));
-    bestDice = Math.max(bestDice, stringSimilarity.compareTwoStrings(normCand, target));
-    bestPhonetic = Math.max(bestPhonetic, phoneticMatch(normCand, target));
+    const strippedTarget = stripStrength(target);
 
-    // Prefix / contains bonuses
-    if (target.startsWith(normCand) || normCand.startsWith(target)) {
-      bestLev = Math.max(bestLev, 0.88);
+    // Exact match → perfect score immediately
+    if (normCand === target) return 1.0;
+    // Stripped exact match ("dolo" matches "dolo 650")
+    if (strippedCand === strippedTarget && strippedCand.length >= 3) return 0.97;
+
+    bestLev = Math.max(bestLev, levSimilarity(normCand, target));
+    // Also score stripped versions
+    if (strippedCand.length >= 3 && strippedTarget.length >= 3) {
+      bestLev = Math.max(bestLev, levSimilarity(strippedCand, strippedTarget) * 0.94);
     }
-    if (target.includes(normCand) || normCand.includes(target)) {
-      bestLev = Math.max(bestLev, 0.82);
+    bestDice = Math.max(bestDice, stringSimilarity.compareTwoStrings(normCand, target));
+    bestDice = Math.max(bestDice, stringSimilarity.compareTwoStrings(strippedCand, strippedTarget) * 0.94);
+    bestPhonetic = Math.max(bestPhonetic, phoneticMatch(normCand, target));
+    bestTrigram = Math.max(bestTrigram, trigramSimilarity(normCand, target));
+    if (strippedCand.length >= 3) {
+      bestTrigram = Math.max(bestTrigram, trigramSimilarity(strippedCand, strippedTarget) * 0.93);
+    }
+
+    // Strong prefix / contains bonuses (only for meaningful-length candidates)
+    if (normCand.length >= 4) {
+      if (target.startsWith(normCand)) bestLev = Math.max(bestLev, 0.96);
+      if (normCand.startsWith(target) && target.length >= 4) bestLev = Math.max(bestLev, 0.94);
+      if (target.includes(normCand) || normCand.includes(target)) bestLev = Math.max(bestLev, 0.89);
+    }
+    // Stripped prefix bonus ("dolo" is prefix of "dolo 650")
+    if (strippedCand.length >= 3 && strippedTarget.length >= 3) {
+      if (strippedTarget.startsWith(strippedCand)) bestLev = Math.max(bestLev, 0.91);
+    }
+
+    // Token-level overlap for multi-word names (e.g. 'dolo 650' vs 'Dolo 650mg')
+    const candTokens = normCand.split(/\s+/).filter(Boolean);
+    const targTokens = target.split(/\s+/).filter(Boolean);
+    if (candTokens.length > 1 || targTokens.length > 1) {
+      const overlapCount = candTokens.filter(
+        (ct) => targTokens.some((tt) => tt === ct || tt.startsWith(ct) || ct.startsWith(tt))
+      ).length;
+      const overlapRatio = overlapCount / Math.max(candTokens.length, targTokens.length);
+      if (overlapRatio > 0) {
+        // Stronger bonus when all candidate tokens match
+        const bonus = overlapRatio === 1.0 ? 0.60 : 0.52;
+        bestLev = Math.max(bestLev, bonus + overlapRatio * 0.38);
+      }
     }
   }
 
-  // Weighted composite: Levenshtein 35%, Dice 30%, Fuse/fuzzy 20%, Phonetic 15%
-  // Fuse score is handled externally; we use Dice as proxy here
-  return bestLev * 0.35 + bestDice * 0.35 + bestPhonetic * 0.30;
+  // Weighted composite: Lev 33%, Dice 35%, Trigram 17%, Phonetic 15%
+  return bestLev * 0.33 + bestDice * 0.35 + bestTrigram * 0.17 + bestPhonetic * 0.15;
 };
 
 /* ── public API ──────────────────────────────────────────────────────── */
@@ -133,12 +192,12 @@ const compositeScore = (candidate, med) => {
  * @param {string[]} candidates – ranked OCR tokens
  * @param {object} [opts]
  * @param {number} [opts.limit=5] – how many matches to return
- * @param {number} [opts.minScore=0.52] – minimum composite score
+ * @param {number} [opts.minScore=0.46] – minimum composite score
  * @returns {Promise<Array<{ candidate, score, matchedBy, medicine }>>}
  */
 export const matchCandidates = async (candidates, opts = {}) => {
   const limit = Number(opts.limit) || 5;
-  const minScore = Number(opts.minScore) || 0.52;
+  const minScore = Number(opts.minScore) || 0.46;
 
   await buildFuseIndex();
 
@@ -160,7 +219,21 @@ export const matchCandidates = async (candidates, opts = {}) => {
       const compScore = compositeScore(candidate, med);
 
       // Blend Fuse score + composite
-      const finalScore = fuseScore * 0.35 + compScore * 0.65;
+      let finalScore = fuseScore * 0.35 + compScore * 0.65;
+
+      // Direct name-field match bonus: when the candidate exactly matches the
+      // medicine's own name (not just genericName), boost it so it outranks
+      // medicines that only matched via a generic ingredient.
+      const normMedName = normalizeKey(med.name || '');
+      const strippedMedName = stripStrength(normMedName);
+      if (
+        normMedName === candidate ||
+        normMedName === stripStrength(candidate) ||
+        strippedMedName === candidate ||
+        (strippedMedName.length >= 4 && strippedMedName === stripStrength(candidate))
+      ) {
+        finalScore = Math.min(1.5, finalScore + 0.15);
+      }
 
       if (finalScore < minScore) continue;
 
@@ -178,7 +251,20 @@ export const matchCandidates = async (candidates, opts = {}) => {
 
     // 2. Direct composite scoring against full DB (for candidates Fuse misses)
     for (const med of fuseData) {
-      const compScore = compositeScore(candidate, med);
+      let compScore = compositeScore(candidate, med);
+
+      // Same direct name-field bonus
+      const normMedName = normalizeKey(med.name || '');
+      const strippedMedName = stripStrength(normMedName);
+      if (
+        normMedName === candidate ||
+        normMedName === stripStrength(candidate) ||
+        strippedMedName === candidate ||
+        (strippedMedName.length >= 4 && strippedMedName === stripStrength(candidate))
+      ) {
+        compScore = Math.min(1.5, compScore + 0.15);
+      }
+
       if (compScore < minScore) continue;
 
       const id = med._id.toString();

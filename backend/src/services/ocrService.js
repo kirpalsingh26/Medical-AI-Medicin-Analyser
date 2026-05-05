@@ -209,7 +209,7 @@ export const ocrService = {
     const matchLimit = Number(opts.matchLimit) || 5;
     const topMatches = await matchCandidates(
       [...postProcessed.candidates, ...postProcessed.wordTokens],
-      { limit: matchLimit, minScore: 0.48 }
+      { limit: matchLimit, minScore: 0.42 }
     );
 
     // 6. Suggestions

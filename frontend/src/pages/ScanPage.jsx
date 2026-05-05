@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, BookOpen, Camera, FileImage, Info, Pill, ScanLine, Settings2, Sparkles, WandSparkles, Zap } from 'lucide-react';
+import { AlertTriangle, BookOpen, Camera, CheckCircle, FileImage, Info, Pill, ScanLine, Settings2, Sparkles, ThumbsDown, ThumbsUp, WandSparkles, X, Zap } from 'lucide-react';
 import api from '../api/client';
 import BarcodeScanner from '../components/BarcodeScanner';
 import Loader from '../components/Loader';
@@ -12,6 +12,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const ScanPage = () => {
   const { dark } = useTheme();
+  const cameraRef = useRef(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,11 @@ const ScanPage = () => {
   const [ocrLang, setOcrLang] = useState('eng');
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewName, setPreviewName] = useState('');
+  // Feedback / training state
+  const [feedbackState, setFeedbackState] = useState(null); // null | 'asking' | 'correcting' | 'done'
+  const [feedbackCorrection, setFeedbackCorrection] = useState('');
+  const [feedbackSending, setFeedbackSending] = useState(false);
+  const [lastScanMeta, setLastScanMeta] = useState(null); // { detectedName, confidence, detectedText }
 
   const handleSearch = async (q = query) => {
     if (!q) return;
@@ -59,6 +65,13 @@ const ScanPage = () => {
       setOcrCandidates(data.data.candidates || []);
       setOcrSuggestions(data.data.suggestions || []);
       setAiDetails(data.data.aiDetails || null);
+      // Store scan metadata for feedback/training
+      setLastScanMeta({
+        detectedName: data.data.aiDetails?.medicineName || data.data.candidates?.[0] || '',
+        confidence: data.data.confidence,
+        detectedText: data.data.rawText || data.data.aiDetails?.detectedText || ''
+      });
+      setFeedbackState('asking'); // prompt user to confirm result
 
       const fromDetected = (data.data.detectedMedicines || [])
         .map((item) => item.medicine)
@@ -69,7 +82,26 @@ const ScanPage = () => {
 
       if (merged.length) {
         setResults(merged);
-        setQuery(merged[0]?.name || '');
+        // Prefer the Gemini-identified name if available, else the first DB match
+        const ai = data.data.aiDetails;
+        setQuery(ai?.medicineName || merged[0]?.name || '');
+      } else if (data.data.aiDetails?.medicineName) {
+        // Gemini identified a medicine but DB has no record – search by name then generic
+        const ai = data.data.aiDetails;
+        setQuery(ai.medicineName);
+        const searchQ = ai.medicineName;
+        let found = false;
+        try {
+          const r1 = await api.get(`/medicines/search?q=${encodeURIComponent(searchQ)}`);
+          if (r1.data.data?.length) { setResults(r1.data.data); found = true; }
+        } catch (_) {}
+        if (!found && ai.genericName) {
+          try {
+            const r2 = await api.get(`/medicines/search?q=${encodeURIComponent(ai.genericName)}`);
+            if (r2.data.data?.length) { setResults(r2.data.data); found = true; }
+          } catch (_) {}
+        }
+        // Even if still not found, aiDetails card will be shown prominently
       } else {
         const bestCandidate = data.data.candidates?.[0];
         if (bestCandidate) {
@@ -97,6 +129,33 @@ const ScanPage = () => {
     setResults([]);
     setPreviewUrl('');
     setPreviewName('');
+    setFeedbackState(null);
+    setFeedbackCorrection('');
+    setLastScanMeta(null);
+  };
+
+  const sendFeedback = async (isCorrect, correctName = '') => {
+    if (!lastScanMeta) return;
+    setFeedbackSending(true);
+    try {
+      await api.post('/medicines/ocr-feedback', {
+        detectedName: lastScanMeta.detectedName,
+        correctName: isCorrect ? lastScanMeta.detectedName : correctName,
+        confidence: lastScanMeta.confidence,
+        detectedText: lastScanMeta.detectedText
+      });
+      if (!isCorrect && correctName) {
+        // Search for the correct medicine and show it
+        const r = await api.get(`/medicines/search?q=${encodeURIComponent(correctName)}`);
+        if (r.data.data?.length) setResults(r.data.data);
+        setQuery(correctName);
+      }
+      setFeedbackState('done');
+    } catch (_) {
+      setFeedbackState('done');
+    } finally {
+      setFeedbackSending(false);
+    }
   };
 
   return (
@@ -127,6 +186,8 @@ const ScanPage = () => {
         >
           <div className="flex flex-wrap items-center gap-2">
             <input id="ocr-image-upload" type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+            {/* Hidden camera capture input */}
+            <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onFileChange} />
             <label
               htmlFor="ocr-image-upload"
               className={`inline-block cursor-pointer rounded-xl border px-4 py-2 font-semibold transition ${dark
@@ -135,9 +196,19 @@ const ScanPage = () => {
                 }`}
             >
               <span className="inline-flex items-center gap-2">
-                <Camera className="h-4 w-4" /> Upload Prescription / Medicine Image
+                <FileImage className="h-4 w-4" /> Upload Image
               </span>
             </label>
+            {/* Camera capture button (mobile: opens camera; desktop: opens file picker) */}
+            <button
+              onClick={() => cameraRef.current?.click()}
+              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 font-semibold transition ${dark
+                  ? 'border-violet-400/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20'
+                  : 'border-violet-400/50 bg-violet-50 text-violet-700 hover:bg-violet-100'
+                }`}
+            >
+              <Camera className="h-4 w-4" /> Take Photo
+            </button>
             <button
               onClick={clearOcr}
               className={`rounded-xl border px-4 py-2 font-semibold transition ${dark
@@ -416,6 +487,86 @@ const ScanPage = () => {
         )}
       </AnimatePresence>
 
+      {/* ===== Feedback / Training UI ===== */}
+      <AnimatePresence>
+        {feedbackState && feedbackState !== 'done' && results.length > 0 && (
+          <motion.div
+            key="feedback-banner"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className={`rounded-2xl border p-4 flex flex-wrap items-center gap-3 ${
+              dark ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-emerald-300 bg-emerald-50'
+            }`}
+          >
+            {feedbackState === 'asking' && (
+              <>
+                <Sparkles className={`h-5 w-5 ${dark ? 'text-emerald-300' : 'text-emerald-600'}`} />
+                <span className={`flex-1 font-medium ${dark ? 'text-emerald-200' : 'text-emerald-800'}`}>
+                  Was the detection correct?
+                </span>
+                <button
+                  disabled={feedbackSending}
+                  onClick={() => sendFeedback(true)}
+                  className="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-60"
+                >
+                  <ThumbsUp className="h-4 w-4" /> Yes, correct!
+                </button>
+                <button
+                  disabled={feedbackSending}
+                  onClick={() => setFeedbackState('correcting')}
+                  className="inline-flex items-center gap-1 rounded-xl bg-rose-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-rose-600 disabled:opacity-60"
+                >
+                  <ThumbsDown className="h-4 w-4" /> No, fix it
+                </button>
+              </>
+            )}
+            {feedbackState === 'correcting' && (
+              <>
+                <X
+                  className={`h-5 w-5 cursor-pointer ${dark ? 'text-rose-300' : 'text-rose-500'}`}
+                  onClick={() => setFeedbackState('asking')}
+                />
+                <span className={`font-medium ${dark ? 'text-rose-200' : 'text-rose-700'}`}>
+                  Enter the correct medicine name:
+                </span>
+                <input
+                  type="text"
+                  value={feedbackCorrection}
+                  onChange={(e) => setFeedbackCorrection(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && feedbackCorrection.trim() && sendFeedback(false, feedbackCorrection.trim())}
+                  placeholder="e.g. Dolo 650"
+                  className={`flex-1 min-w-[160px] rounded-xl border px-3 py-1.5 text-sm outline-none ${
+                    dark ? 'border-white/10 bg-white/5 text-white placeholder:text-white/30' : 'border-gray-200 bg-white text-gray-800'
+                  }`}
+                />
+                <button
+                  disabled={feedbackSending || !feedbackCorrection.trim()}
+                  onClick={() => sendFeedback(false, feedbackCorrection.trim())}
+                  className="inline-flex items-center gap-1 rounded-xl bg-indigo-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-indigo-600 disabled:opacity-60"
+                >
+                  {feedbackSending ? 'Sending…' : 'Submit'}
+                </button>
+              </>
+            )}
+          </motion.div>
+        )}
+        {feedbackState === 'done' && (
+          <motion.div
+            key="feedback-done"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium ${
+              dark ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300' : 'border-emerald-300 bg-emerald-50 text-emerald-700'
+            }`}
+          >
+            <CheckCircle className="h-4 w-4" />
+            Thanks! MedVision has learned from your feedback.
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {loading ? (
         <Loader text="Analyzing medicine data..." />
       ) : (
@@ -442,6 +593,14 @@ const fileToBase64 = (file) =>
     reader.readAsDataURL(file);
   });
 
+/**
+ * Preprocess image before sending to OCR:
+ * 1. Resize to max 2400px wide (keeps bandwidth low)
+ * 2. Auto-brightness: normalize pixel values
+ * 3. Contrast enhancement via pixel-level manipulation
+ * 4. Unsharp mask (sharpen) — critical for blurry medicine labels
+ * 5. Convert to high-quality PNG
+ */
 const preprocessImageToBase64 = async (file) => {
   const base64 = await fileToBase64(file);
   const imageUrl = `data:${file.type || 'image/png'};base64,${base64}`;
@@ -453,8 +612,7 @@ const preprocessImageToBase64 = async (file) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return reject(new Error('Canvas context not available'));
 
-      // Only resize for bandwidth — server handles all preprocessing
-      // (contrast, threshold, multi-variant, etc.) properly with sharp
+      // Step 1: Resize
       const maxWidth = 2400;
       const scale = Math.min(1, maxWidth / image.width);
       canvas.width = Math.max(1, Math.floor(image.width * scale));
@@ -463,6 +621,49 @@ const preprocessImageToBase64 = async (file) => {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      // Step 2: Get pixel data and enhance
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      // Auto-brightness: find min/max luminance
+      let minL = 255, maxL = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const l = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        if (l < minL) minL = l;
+        if (l > maxL) maxL = l;
+      }
+      const range = maxL - minL || 1;
+
+      // Step 3: Contrast stretch + brightness boost
+      for (let i = 0; i < data.length; i += 4) {
+        // Normalize each channel
+        data[i]     = Math.min(255, Math.max(0, ((data[i]     - minL) / range) * 255));
+        data[i + 1] = Math.min(255, Math.max(0, ((data[i + 1] - minL) / range) * 255));
+        data[i + 2] = Math.min(255, Math.max(0, ((data[i + 2] - minL) / range) * 255));
+      }
+      ctx.putImageData(imageData, 0, 0);
+
+      // Step 4: Unsharp mask (sharpen) — draw blurred then blend with original
+      const sharpenCanvas = document.createElement('canvas');
+      sharpenCanvas.width = canvas.width;
+      sharpenCanvas.height = canvas.height;
+      const sc = sharpenCanvas.getContext('2d');
+      // Draw blurred version
+      sc.filter = 'blur(1px)';
+      sc.drawImage(canvas, 0, 0);
+      sc.filter = 'none';
+      // Get blurred pixels
+      const blurred = sc.getImageData(0, 0, canvas.width, canvas.height);
+      const sharp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const sharpenAmount = 1.8; // strength of sharpening
+      for (let i = 0; i < sharp.data.length; i += 4) {
+        for (let c = 0; c < 3; c++) {
+          const diff = sharp.data[i + c] - blurred.data[i + c];
+          sharp.data[i + c] = Math.min(255, Math.max(0, sharp.data[i + c] + sharpenAmount * diff));
+        }
+      }
+      ctx.putImageData(sharp, 0, 0);
 
       const optimized = canvas.toDataURL('image/png').split(',')[1];
       resolve(optimized);

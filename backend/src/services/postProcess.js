@@ -44,7 +44,17 @@ const SYMBOL_CORRECTIONS = [
   [/\$/g, 's'],
   [/@/g, 'a'],
   [/\|/g, 'l'],
-  [/!/g, 'i']
+  [/!/g, 'i'],
+  [/\{/g, '('],
+  [/\}/g, ')'],
+  [/©/g, 'c'],
+  [/®/g, ''],
+  [/™/g, ''],
+  // Common OCR misreads on medicine packaging
+  [/[`´]/g, "'"],
+  [/[°º]/g, 'o'],
+  [/[¡]/g, 'i'],
+  [/\\n/g, ' ']
 ];
 
 /**
@@ -72,7 +82,15 @@ export const applyConfusionCorrections = (token) => {
 
   // Context-aware digit→letter: only replace a digit when it is
   // surrounded by letters (likely an OCR misread, e.g. "D0lo" → "Dolo")
+  // Special case: digit '1' could be 'i' or 'l' — prefer 'i' when between vowels,
+  // otherwise use standard map ('l').
   result = result.replace(/([a-zA-Z])(\d)([a-zA-Z])/g, (_, pre, digit, post) => {
+    if (digit === '1') {
+      // '1' between two vowel-adjacent letters → prefer 'i' (e.g. Az1thral → Azithral)
+      const vowels = 'aeiouAEIOU';
+      if (vowels.includes(pre) || vowels.includes(post)) return pre + 'i' + post;
+      return pre + 'l' + post;
+    }
     return pre + (DIGIT_LETTER_MAP[digit] || digit) + post;
   });
 
@@ -91,12 +109,30 @@ export const applyConfusionCorrections = (token) => {
 
 /**
  * Normalize an OCR token for comparison / dedup.
+ * Also generates OCR-variant candidates by trying both 'i' and 'l' for digit '1'.
  */
 export const normalizeToken = (value) =>
   applyConfusionCorrections(String(value || ''))
     .replace(/[^a-zA-Z0-9\s-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+/**
+ * Return all plausible token variants for ambiguous OCR characters.
+ * e.g. "Az1thral" → ["Azithral", "Azlthral"]
+ */
+export const tokenVariants = (value) => {
+  const base = normalizeToken(value);
+  const variants = new Set([base]);
+  // For tokens containing '1' in alpha context, try both 'i' and 'l' substitutions
+  if (/[a-zA-Z][1][a-zA-Z]/.test(String(value || ''))) {
+    const withI = String(value || '').replace(/([a-zA-Z])1([a-zA-Z])/g, '$1i$2');
+    const withL = String(value || '').replace(/([a-zA-Z])1([a-zA-Z])/g, '$1l$2');
+    variants.add(normalizeToken(withI));
+    variants.add(normalizeToken(withL));
+  }
+  return Array.from(variants).filter(Boolean);
+};
 
 export const normalizeKey = (value) => normalizeToken(value).toLowerCase();
 
@@ -139,7 +175,7 @@ export const lengthBoost = (token) => {
  */
 export const postProcessOcr = (ocrResult, opts = {}) => {
   const { text = '', confidence = 0, words = [] } = ocrResult;
-  const minWordConfidence = Number(opts.minWordConfidence ?? 38);
+  const minWordConfidence = Number(opts.minWordConfidence ?? 30);
   const maxNgram = Math.min(4, Math.max(2, Number(opts.maxNgram ?? 3)));
 
   const scored = new Map(); // key → { value, score }
@@ -168,22 +204,42 @@ export const postProcessOcr = (ocrResult, opts = {}) => {
     .filter((seg) => seg.length >= 3)
     .slice(0, 40);
 
-  for (const line of lines) {
+  for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+    const line = lines[lineIdx];
+    const lineBonus = lineIdx === 0 ? 0.18 : lineIdx === 1 ? 0.08 : 0.0;
+
     const medicineWords = line
       .split(/\s+/)
       .filter((tok) => looksLikeMedicine(tok));
     if (!medicineWords.length) continue;
 
     const joined = medicineWords.join(' ');
-    addCandidate(joined, 0.55 + Math.min(0.2, medicineWords.length * 0.06));
+    addCandidate(joined, 0.55 + lineBonus + Math.min(0.2, medicineWords.length * 0.06));
 
-    // Also add individual words from lines
+    // Also add individual words from lines — including OCR variants (i vs l for '1')
     for (const w of medicineWords) {
-      addCandidate(w, 0.42 + lengthBoost(w));
+      const baseScore = 0.42 + lineBonus + lengthBoost(w);
+      for (const variant of tokenVariants(w)) {
+        addCandidate(variant, baseScore);
+      }
     }
   }
 
   /* ── 1b. Pattern-based brand+strength extraction ─────────────────── */
+
+  /* ── 1c. Raw-text digit-ambiguity variants ────────────────────────── */
+  // Generate OCR character variants from the RAW text (before normalization strips '1' → 'l').
+  // This catches cases like "Az1thral" → also try "Azithral" (1→i) in addition to "Azlthral" (1→l).
+  for (const rawWord of String(text || '').split(/[\s\n\r,;|:/+]+/).filter(Boolean)) {
+    if (rawWord.length < 4) continue;
+    if (!/[a-zA-Z][0-9][a-zA-Z]/.test(rawWord)) continue; // only words with digit in alpha context
+    const variants = tokenVariants(rawWord);
+    for (const variant of variants) {
+      if (looksLikeMedicine(variant)) {
+        addCandidate(variant, 0.68 + lengthBoost(variant));
+      }
+    }
+  }
 
   // Normalize OCR-confused numeric strings like "6SO" → "650".
   const normalizeStrengthNumber = (value) => String(value || '')
@@ -210,6 +266,44 @@ export const postProcessOcr = (ocrResult, opts = {}) => {
 
     addCandidate(`${name}-${dose}`, 0.80);
     addCandidate(name, 0.62 + lengthBoost(name));
+  }
+
+  // Pattern C: brand+strength fused with no separator — e.g. "Dolo650", "Azithral500", "Metpure500"
+  for (const match of String(text || '').matchAll(/\b([A-Za-z]{3,})([0-9]{2,4})\b/g)) {
+    const brand = normalizeToken(match[1]);
+    const dose = match[2];
+    if (!looksLikeMedicine(brand)) continue;
+
+    addCandidate(`${brand} ${dose}`, 0.78);
+    addCandidate(`${brand}-${dose}`, 0.76);
+    addCandidate(brand, 0.60 + lengthBoost(brand));
+  }
+
+  // Pattern D: ALL-CAPS single words — very common on Indian packaging (e.g. "DOLO", "CROCIN", "COMBIFLAM")
+  // Use single-word capture only to avoid greedily eating stopwords (e.g. "COMBIFLAM TABLETS")
+  for (const match of String(text || '').matchAll(/\b([A-Z]{3,})\b/g)) {
+    const brand = normalizeToken(match[1]);
+    if (!looksLikeMedicine(brand) || brand.length < 3) continue;
+    // Score by line position: check if this match is on line 0
+    const matchPos = match.index || 0;
+    const firstNewline = String(text || '').indexOf('\n');
+    const isFirstLine = firstNewline === -1 || matchPos < firstNewline;
+    const posBonus = isFirstLine ? 0.20 : 0.05;
+    addCandidate(brand, 0.72 + posBonus + lengthBoost(brand));
+    // Title-cased version too
+    const titled = brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase();
+    addCandidate(titled, 0.70 + posBonus + lengthBoost(titled));
+  }
+
+  // Pattern D2: consecutive ALL-CAPS words as multi-word brand (e.g. "MONTAIR LC", "AUGMENTIN DUO")
+  for (const match of String(text || '').matchAll(/\b([A-Z]{3,}(?:\s+[A-Z]{2,})+)\b/g)) {
+    const raw = match[1].trim();
+    const brand = normalizeToken(raw);
+    // Must not be purely stopwords
+    const parts = brand.toLowerCase().split(/\s+/);
+    if (parts.every(p => OCR_STOPWORDS.has(p))) continue;
+    if (brand.length < 4) continue;
+    addCandidate(brand, 0.76 + lengthBoost(brand));
   }
 
   /* ── 2. Confident word tokens ─────────────────────────────────────── */

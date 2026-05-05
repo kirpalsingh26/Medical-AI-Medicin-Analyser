@@ -6,7 +6,7 @@ const searchHistorySchema = new mongoose.Schema(
     query: { type: String, required: true },
     source: {
       type: String,
-      enum: ['text', 'ocr', 'voice', 'barcode', 'chatbot', 'prescription'],
+      enum: ['text', 'ocr', 'voice', 'barcode', 'chatbot', 'prescription', 'ocr-feedback'],
       default: 'text'
     },
     resultCount: { type: Number, default: 0 }

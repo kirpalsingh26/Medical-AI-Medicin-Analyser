@@ -1,23 +1,27 @@
 import { SearchHistory } from '../models/SearchHistory.js';
 
 export const myDashboard = async (req, res) => {
-  const recentSearches = await SearchHistory.find({ user: req.user._id })
-    .sort({ createdAt: -1 })
-    .limit(20)
-    .lean();
+  try {
+    const recentSearches = await SearchHistory.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
 
-  const sourceBreakdown = await SearchHistory.aggregate([
-    { $match: { user: req.user._id } },
-    { $group: { _id: '$source', count: { $sum: 1 } } }
-  ]);
+    const sourceBreakdown = await SearchHistory.aggregate([
+      { $match: { user: req.user._id } },
+      { $group: { _id: '$source', count: { $sum: 1 } } }
+    ]);
 
-  res.status(200).json({
-    success: true,
-    data: {
-      recentSearches,
-      sourceBreakdown
-    }
-  });
+    res.status(200).json({
+      success: true,
+      data: {
+        recentSearches,
+        sourceBreakdown
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message, data: {} });
+  }
 };
 
 export const deleteRecentSearch = async (req, res) => {

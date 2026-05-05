@@ -91,3 +91,55 @@ medvision/
 │       └── pages/
 └── README.md
 ```
+
+
+"""
+ocr_service/main.py
+────────────────────
+Python FastAPI microservice powering the medicine OCR pipeline.
+
+Strategy
+────────
+1. PRIMARY  – Gemini Vision (gemini-2.0-flash / gemini-1.5-flash)
+   The model reads the image natively and returns a structured JSON with:
+   • detectedText      : exact text it sees on the label
+   • medicineName      : identified brand/generic name
+   • genericName       : generic / active ingredient
+   • manufacturer      : company name
+   • dosage            : strength (e.g. 650 mg)
+   • uses              : what the medicine is used for
+   • sideEffects       : common side effects
+   • howToUse          : administration instructions
+   • storage           : storage instructions
+   • warnings          : important cautions
+   • confidence        : 0-100 self-reported confidence
+
+2. FALLBACK – EasyOCR (raw text only, returned when Gemini is unavailable)
+
+Endpoint
+────────
+POST /ocr-analyze
+  Body : multipart/form-data  →  file: image/*
+  OR    application/json      →  { "imageBase64": "<base64 string>" }
+
+Returns
+───────
+{
+  "success": true,
+  "source": "gemini" | "easyocr" | "failed",
+  "confidence": 0-100,
+  "detectedText": "...",
+  "medicine": {
+    "name": "...",
+    "genericName": "...",
+    "manufacturer": "...",
+    "dosage": "...",
+    "uses": ["..."],
+    "sideEffects": ["..."],
+    "howToUse": "...",
+    "storage": "...",
+    "warnings": ["..."]
+  },
+  "elapsedMs": 0
+}
+"""

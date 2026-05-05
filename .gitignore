@@ -4,4 +4,22 @@ node_modules
 dist
 coverage
 *.log
-backend/uploadsbackend/ocr_service/__pycache__
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/ocr_service/__pycache__/
+backend/ocr_service/venv/
+
+# Uploads
+backend/uploads/
+
+# VS Code
+.vscode/
+
+# Test images (not source code)
+frontend/*.webp
+frontend/*.avif
+frontend/*.jpg
+frontend/*.png

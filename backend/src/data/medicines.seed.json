@@ -1,35 +1,2336 @@
 [
   {
     "name": "Paracetamol",
-    "genericName": "Acetaminophen",
-    "category": "Analgesic",
-    "manufacturer": "Generic Pharma",
-    "dosage": "500mg",
-    "uses": ["Fever", "Mild pain"],
-    "sideEffects": ["Nausea", "Rash"],
-    "alternatives": ["Ibuprofen"],
-    "barcode": "8901234567890"
+    "genericName": "Paracetamol",
+    "aliases": [
+      "Acetaminophen",
+      "Tylenol",
+      "Panadol",
+      "Calpol generic"
+    ],
+    "category": "Analgesic/Antipyretic",
+    "manufacturer": "Various",
+    "dosage": "500mg - 1000mg",
+    "uses": [
+      "Fever",
+      "Headache",
+      "Body pain",
+      "Dental pain"
+    ],
+    "sideEffects": [
+      "Liver damage in overdose",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Ibuprofen",
+      "Aspirin"
+    ]
   },
   {
     "name": "Ibuprofen",
     "genericName": "Ibuprofen",
+    "aliases": [
+      "Advil",
+      "Motrin",
+      "Nurofen",
+      "Brufen generic"
+    ],
     "category": "NSAID",
-    "manufacturer": "Relief Labs",
-    "dosage": "400mg",
-    "uses": ["Inflammation", "Pain"],
-    "sideEffects": ["Acidity", "Dizziness"],
-    "alternatives": ["Paracetamol"],
-    "barcode": "8901234567891"
+    "manufacturer": "Various",
+    "dosage": "200mg - 800mg",
+    "uses": [
+      "Pain",
+      "Inflammation",
+      "Fever",
+      "Menstrual cramps",
+      "Arthritis"
+    ],
+    "sideEffects": [
+      "Stomach upset",
+      "GI bleeding",
+      "Headache"
+    ],
+    "alternatives": [
+      "Paracetamol",
+      "Naproxen"
+    ]
   },
   {
     "name": "Amoxicillin",
-    "genericName": "Amoxicillin",
+    "genericName": "Amoxicillin Trihydrate",
+    "aliases": [
+      "Amoxil",
+      "Trimox",
+      "Moxatag",
+      "Larotid"
+    ],
     "category": "Antibiotic",
-    "manufacturer": "CareLife",
-    "dosage": "250mg",
-    "uses": ["Bacterial infection"],
-    "sideEffects": ["Diarrhea", "Nausea"],
-    "alternatives": ["Azithromycin"],
-    "barcode": "8901234567892"
+    "manufacturer": "Various",
+    "dosage": "250mg - 500mg",
+    "uses": [
+      "Bacterial infections",
+      "Pneumonia",
+      "UTI",
+      "Ear infections"
+    ],
+    "sideEffects": [
+      "Diarrhea",
+      "Nausea",
+      "Rash"
+    ],
+    "alternatives": [
+      "Azithromycin",
+      "Cephalexin"
+    ]
+  },
+  {
+    "name": "Tylenol Extra Strength",
+    "genericName": "Acetaminophen",
+    "aliases": [
+      "Tylenol",
+      "Tylenol 500"
+    ],
+    "category": "Analgesic/Antipyretic",
+    "manufacturer": "Johnson & Johnson",
+    "dosage": "500mg",
+    "uses": [
+      "Pain relief",
+      "Fever reduction"
+    ],
+    "sideEffects": [
+      "Liver damage in overdose"
+    ],
+    "alternatives": [
+      "Advil",
+      "Motrin"
+    ]
+  },
+  {
+    "name": "Advil",
+    "genericName": "Ibuprofen",
+    "aliases": [
+      "Advil Liqui-Gels",
+      "Advil PM"
+    ],
+    "category": "NSAID",
+    "manufacturer": "Pfizer",
+    "dosage": "200mg",
+    "uses": [
+      "Pain",
+      "Fever",
+      "Inflammation"
+    ],
+    "sideEffects": [
+      "GI upset",
+      "Bleeding risk"
+    ],
+    "alternatives": [
+      "Tylenol",
+      "Aleve"
+    ]
+  },
+  {
+    "name": "Motrin",
+    "genericName": "Ibuprofen",
+    "aliases": [
+      "Motrin IB",
+      "Children's Motrin"
+    ],
+    "category": "NSAID",
+    "manufacturer": "Johnson & Johnson",
+    "dosage": "200mg",
+    "uses": [
+      "Pain",
+      "Fever",
+      "Inflammation"
+    ],
+    "sideEffects": [
+      "GI irritation"
+    ],
+    "alternatives": [
+      "Advil",
+      "Aleve"
+    ]
+  },
+  {
+    "name": "Aleve",
+    "genericName": "Naproxen Sodium",
+    "aliases": [
+      "Naproxen",
+      "Naprosyn"
+    ],
+    "category": "NSAID",
+    "manufacturer": "Bayer",
+    "dosage": "220mg",
+    "uses": [
+      "Pain",
+      "Arthritis",
+      "Menstrual cramps",
+      "Headache"
+    ],
+    "sideEffects": [
+      "GI irritation"
+    ],
+    "alternatives": [
+      "Advil",
+      "Tylenol"
+    ]
+  },
+  {
+    "name": "Aspirin",
+    "genericName": "Acetylsalicylic Acid",
+    "aliases": [
+      "Bayer Aspirin",
+      "Bufferin",
+      "Ecotrin",
+      "Disprin"
+    ],
+    "category": "NSAID/Antiplatelet",
+    "manufacturer": "Bayer",
+    "dosage": "81mg - 325mg",
+    "uses": [
+      "Pain",
+      "Fever",
+      "Cardiovascular prevention"
+    ],
+    "sideEffects": [
+      "GI bleeding",
+      "Ulcer"
+    ],
+    "alternatives": [
+      "Ibuprofen",
+      "Clopidogrel"
+    ]
+  },
+  {
+    "name": "Lipitor",
+    "genericName": "Atorvastatin Calcium",
+    "aliases": [
+      "Atorvastatin",
+      "Torvast"
+    ],
+    "category": "Statin",
+    "manufacturer": "Pfizer",
+    "dosage": "10mg - 80mg",
+    "uses": [
+      "High cholesterol",
+      "LDL reduction",
+      "Cardiovascular prevention"
+    ],
+    "sideEffects": [
+      "Muscle pain",
+      "Liver problems",
+      "Headache"
+    ],
+    "alternatives": [
+      "Crestor",
+      "Zocor"
+    ]
+  },
+  {
+    "name": "Crestor",
+    "genericName": "Rosuvastatin Calcium",
+    "aliases": [
+      "Rosuvastatin",
+      "Ezallor"
+    ],
+    "category": "Statin",
+    "manufacturer": "AstraZeneca",
+    "dosage": "5mg - 40mg",
+    "uses": [
+      "High cholesterol",
+      "Dyslipidemia",
+      "Heart disease prevention"
+    ],
+    "sideEffects": [
+      "Muscle pain",
+      "Headache"
+    ],
+    "alternatives": [
+      "Lipitor",
+      "Zocor"
+    ]
+  },
+  {
+    "name": "Zocor",
+    "genericName": "Simvastatin",
+    "aliases": [
+      "Simvastatin",
+      "Simcor"
+    ],
+    "category": "Statin",
+    "manufacturer": "Merck",
+    "dosage": "10mg - 40mg",
+    "uses": [
+      "High cholesterol",
+      "Triglycerides",
+      "Cardiovascular risk reduction"
+    ],
+    "sideEffects": [
+      "Myopathy",
+      "Liver toxicity"
+    ],
+    "alternatives": [
+      "Lipitor",
+      "Crestor"
+    ]
+  },
+  {
+    "name": "Metformin",
+    "genericName": "Metformin Hydrochloride",
+    "aliases": [
+      "Glucophage",
+      "Fortamet",
+      "Glumetza"
+    ],
+    "category": "Antidiabetic",
+    "manufacturer": "Various",
+    "dosage": "500mg - 2000mg",
+    "uses": [
+      "Type 2 diabetes",
+      "Blood sugar control",
+      "PCOS"
+    ],
+    "sideEffects": [
+      "GI upset",
+      "Lactic acidosis (rare)",
+      "B12 deficiency"
+    ],
+    "alternatives": [
+      "Sitagliptin",
+      "Empagliflozin"
+    ]
+  },
+  {
+    "name": "Januvia",
+    "genericName": "Sitagliptin Phosphate",
+    "aliases": [
+      "Sitagliptin",
+      "Janumet"
+    ],
+    "category": "Antidiabetic/DPP-4 Inhibitor",
+    "manufacturer": "Merck",
+    "dosage": "100mg",
+    "uses": [
+      "Type 2 diabetes",
+      "Blood sugar control"
+    ],
+    "sideEffects": [
+      "Pancreatitis",
+      "Nasopharyngitis",
+      "UTI"
+    ],
+    "alternatives": [
+      "Tradjenta",
+      "Onglyza"
+    ]
+  },
+  {
+    "name": "Jardiance",
+    "genericName": "Empagliflozin",
+    "aliases": [
+      "Empagliflozin"
+    ],
+    "category": "Antidiabetic/SGLT2 Inhibitor",
+    "manufacturer": "Boehringer Ingelheim",
+    "dosage": "10mg - 25mg",
+    "uses": [
+      "Type 2 diabetes",
+      "Heart failure",
+      "CKD"
+    ],
+    "sideEffects": [
+      "Genital infections",
+      "UTI",
+      "Dehydration"
+    ],
+    "alternatives": [
+      "Farxiga",
+      "Invokana"
+    ]
+  },
+  {
+    "name": "Farxiga",
+    "genericName": "Dapagliflozin",
+    "aliases": [
+      "Dapagliflozin"
+    ],
+    "category": "Antidiabetic/SGLT2 Inhibitor",
+    "manufacturer": "AstraZeneca",
+    "dosage": "10mg",
+    "uses": [
+      "Type 2 diabetes",
+      "Heart failure",
+      "CKD"
+    ],
+    "sideEffects": [
+      "Genital infections",
+      "UTI"
+    ],
+    "alternatives": [
+      "Jardiance",
+      "Invokana"
+    ]
+  },
+  {
+    "name": "Ozempic",
+    "genericName": "Semaglutide",
+    "aliases": [
+      "Semaglutide",
+      "Wegovy",
+      "Rybelsus"
+    ],
+    "category": "GLP-1 Agonist",
+    "manufacturer": "Novo Nordisk",
+    "dosage": "0.5mg - 2mg weekly",
+    "uses": [
+      "Type 2 diabetes",
+      "Weight management"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Vomiting",
+      "Pancreatitis"
+    ],
+    "alternatives": [
+      "Trulicity",
+      "Victoza"
+    ]
+  },
+  {
+    "name": "Prilosec",
+    "genericName": "Omeprazole",
+    "aliases": [
+      "Omeprazole",
+      "Zegerid",
+      "Prilosec OTC"
+    ],
+    "category": "PPI",
+    "manufacturer": "AstraZeneca",
+    "dosage": "20mg - 40mg",
+    "uses": [
+      "GERD",
+      "Peptic ulcer",
+      "H. pylori"
+    ],
+    "sideEffects": [
+      "Headache",
+      "Nausea",
+      "Diarrhea"
+    ],
+    "alternatives": [
+      "Nexium",
+      "Prevacid"
+    ]
+  },
+  {
+    "name": "Nexium",
+    "genericName": "Esomeprazole Magnesium",
+    "aliases": [
+      "Esomeprazole",
+      "Nexium 24HR"
+    ],
+    "category": "PPI",
+    "manufacturer": "AstraZeneca",
+    "dosage": "20mg - 40mg",
+    "uses": [
+      "GERD",
+      "Peptic ulcer",
+      "Erosive esophagitis"
+    ],
+    "sideEffects": [
+      "Headache",
+      "Diarrhea",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Prilosec",
+      "Prevacid"
+    ]
+  },
+  {
+    "name": "Prevacid",
+    "genericName": "Lansoprazole",
+    "aliases": [
+      "Lansoprazole"
+    ],
+    "category": "PPI",
+    "manufacturer": "Takeda",
+    "dosage": "15mg - 30mg",
+    "uses": [
+      "GERD",
+      "Peptic ulcer",
+      "H. pylori"
+    ],
+    "sideEffects": [
+      "Headache",
+      "GI upset"
+    ],
+    "alternatives": [
+      "Prilosec",
+      "Nexium"
+    ]
+  },
+  {
+    "name": "Lisinopril",
+    "genericName": "Lisinopril",
+    "aliases": [
+      "Prinivil",
+      "Zestril",
+      "Qbrelis"
+    ],
+    "category": "ACE Inhibitor",
+    "manufacturer": "AstraZeneca",
+    "dosage": "5mg - 40mg",
+    "uses": [
+      "Hypertension",
+      "Heart failure",
+      "Diabetic nephropathy",
+      "Post-MI"
+    ],
+    "sideEffects": [
+      "Dry cough",
+      "Angioedema",
+      "Hyperkalemia",
+      "Dizziness"
+    ],
+    "alternatives": [
+      "Losartan",
+      "Amlodipine"
+    ]
+  },
+  {
+    "name": "Losartan",
+    "genericName": "Losartan Potassium",
+    "aliases": [
+      "Cozaar",
+      "Hyzaar"
+    ],
+    "category": "ARB/Antihypertensive",
+    "manufacturer": "Merck",
+    "dosage": "25mg - 100mg",
+    "uses": [
+      "Hypertension",
+      "Heart failure",
+      "Diabetic nephropathy"
+    ],
+    "sideEffects": [
+      "Dizziness",
+      "Hyperkalemia",
+      "Hypotension"
+    ],
+    "alternatives": [
+      "Valsartan",
+      "Lisinopril"
+    ]
+  },
+  {
+    "name": "Norvasc",
+    "genericName": "Amlodipine Besylate",
+    "aliases": [
+      "Amlodipine",
+      "Norvasc brand",
+      "Katerzia"
+    ],
+    "category": "Calcium Channel Blocker",
+    "manufacturer": "Pfizer",
+    "dosage": "2.5mg - 10mg",
+    "uses": [
+      "Hypertension",
+      "Angina",
+      "Coronary artery disease"
+    ],
+    "sideEffects": [
+      "Ankle swelling",
+      "Headache",
+      "Flushing"
+    ],
+    "alternatives": [
+      "Nifedipine",
+      "Diltiazem"
+    ]
+  },
+  {
+    "name": "Diovan",
+    "genericName": "Valsartan",
+    "aliases": [
+      "Valsartan",
+      "Entresto"
+    ],
+    "category": "ARB/Antihypertensive",
+    "manufacturer": "Novartis",
+    "dosage": "80mg - 320mg",
+    "uses": [
+      "Hypertension",
+      "Heart failure",
+      "Post-MI"
+    ],
+    "sideEffects": [
+      "Dizziness",
+      "Hypotension",
+      "Hyperkalemia"
+    ],
+    "alternatives": [
+      "Losartan",
+      "Olmesartan"
+    ]
+  },
+  {
+    "name": "Toprol XL",
+    "genericName": "Metoprolol Succinate",
+    "aliases": [
+      "Metoprolol",
+      "Lopressor",
+      "Metoprolol XL"
+    ],
+    "category": "Beta Blocker",
+    "manufacturer": "AstraZeneca",
+    "dosage": "25mg - 200mg",
+    "uses": [
+      "Hypertension",
+      "Angina",
+      "Heart failure",
+      "Arrhythmia"
+    ],
+    "sideEffects": [
+      "Fatigue",
+      "Bradycardia",
+      "Cold extremities"
+    ],
+    "alternatives": [
+      "Atenolol",
+      "Carvedilol"
+    ]
+  },
+  {
+    "name": "Tenormin",
+    "genericName": "Atenolol",
+    "aliases": [
+      "Atenolol",
+      "Tenoretic"
+    ],
+    "category": "Beta Blocker",
+    "manufacturer": "AstraZeneca",
+    "dosage": "25mg - 100mg",
+    "uses": [
+      "Hypertension",
+      "Angina",
+      "Arrhythmia"
+    ],
+    "sideEffects": [
+      "Fatigue",
+      "Bradycardia",
+      "Cold limbs"
+    ],
+    "alternatives": [
+      "Metoprolol",
+      "Bisoprolol"
+    ]
+  },
+  {
+    "name": "Synthroid",
+    "genericName": "Levothyroxine Sodium",
+    "aliases": [
+      "Levothyroxine",
+      "Levoxyl",
+      "Unithroid",
+      "Tirosint"
+    ],
+    "category": "Thyroid Hormone",
+    "manufacturer": "AbbVie",
+    "dosage": "25mcg - 200mcg",
+    "uses": [
+      "Hypothyroidism",
+      "Thyroid hormone replacement"
+    ],
+    "sideEffects": [
+      "Palpitations in overdose",
+      "Tremor",
+      "Insomnia"
+    ],
+    "alternatives": [
+      "Liothyronine"
+    ]
+  },
+  {
+    "name": "Coumadin",
+    "genericName": "Warfarin Sodium",
+    "aliases": [
+      "Warfarin",
+      "Jantoven"
+    ],
+    "category": "Anticoagulant",
+    "manufacturer": "Bristol-Myers Squibb",
+    "dosage": "1mg - 10mg",
+    "uses": [
+      "DVT",
+      "Pulmonary embolism",
+      "Atrial fibrillation",
+      "Mechanical heart valves"
+    ],
+    "sideEffects": [
+      "Bleeding",
+      "Bruising",
+      "Drug/food interactions"
+    ],
+    "alternatives": [
+      "Rivaroxaban",
+      "Apixaban"
+    ]
+  },
+  {
+    "name": "Eliquis",
+    "genericName": "Apixaban",
+    "aliases": [
+      "Apixaban"
+    ],
+    "category": "Anticoagulant",
+    "manufacturer": "Bristol-Myers Squibb/Pfizer",
+    "dosage": "2.5mg - 5mg",
+    "uses": [
+      "DVT/PE treatment",
+      "AF-related stroke prevention"
+    ],
+    "sideEffects": [
+      "Bleeding",
+      "Bruising"
+    ],
+    "alternatives": [
+      "Xarelto",
+      "Warfarin"
+    ]
+  },
+  {
+    "name": "Xarelto",
+    "genericName": "Rivaroxaban",
+    "aliases": [
+      "Rivaroxaban"
+    ],
+    "category": "Anticoagulant",
+    "manufacturer": "Bayer/Janssen",
+    "dosage": "10mg - 20mg",
+    "uses": [
+      "DVT/PE prevention",
+      "AF-related stroke"
+    ],
+    "sideEffects": [
+      "Bleeding",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Eliquis",
+      "Warfarin"
+    ]
+  },
+  {
+    "name": "Plavix",
+    "genericName": "Clopidogrel Bisulfate",
+    "aliases": [
+      "Clopidogrel",
+      "Iscover"
+    ],
+    "category": "Antiplatelet",
+    "manufacturer": "Sanofi/Bristol-Myers Squibb",
+    "dosage": "75mg",
+    "uses": [
+      "ACS",
+      "Post-angioplasty",
+      "Stroke prevention"
+    ],
+    "sideEffects": [
+      "Bleeding",
+      "Bruising",
+      "GI upset"
+    ],
+    "alternatives": [
+      "Aspirin",
+      "Ticagrelor"
+    ]
+  },
+  {
+    "name": "Prozac",
+    "genericName": "Fluoxetine Hydrochloride",
+    "aliases": [
+      "Fluoxetine",
+      "Sarafem"
+    ],
+    "category": "SSRI Antidepressant",
+    "manufacturer": "Eli Lilly",
+    "dosage": "10mg - 80mg",
+    "uses": [
+      "Major depression",
+      "OCD",
+      "Bulimia nervosa",
+      "Panic disorder"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Insomnia",
+      "Headache",
+      "Sexual dysfunction"
+    ],
+    "alternatives": [
+      "Zoloft",
+      "Lexapro"
+    ]
+  },
+  {
+    "name": "Zoloft",
+    "genericName": "Sertraline Hydrochloride",
+    "aliases": [
+      "Sertraline",
+      "Lustral"
+    ],
+    "category": "SSRI Antidepressant",
+    "manufacturer": "Pfizer",
+    "dosage": "25mg - 200mg",
+    "uses": [
+      "Depression",
+      "OCD",
+      "PTSD",
+      "Panic disorder"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Insomnia",
+      "Diarrhea"
+    ],
+    "alternatives": [
+      "Prozac",
+      "Lexapro"
+    ]
+  },
+  {
+    "name": "Lexapro",
+    "genericName": "Escitalopram Oxalate",
+    "aliases": [
+      "Escitalopram",
+      "Cipralex"
+    ],
+    "category": "SSRI Antidepressant",
+    "manufacturer": "Forest Labs",
+    "dosage": "5mg - 20mg",
+    "uses": [
+      "Major depression",
+      "Generalized anxiety disorder"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Insomnia",
+      "Headache"
+    ],
+    "alternatives": [
+      "Zoloft",
+      "Prozac"
+    ]
+  },
+  {
+    "name": "Cymbalta",
+    "genericName": "Duloxetine Hydrochloride",
+    "aliases": [
+      "Duloxetine",
+      "Irenka"
+    ],
+    "category": "SNRI Antidepressant",
+    "manufacturer": "Eli Lilly",
+    "dosage": "20mg - 120mg",
+    "uses": [
+      "Major depression",
+      "GAD",
+      "Fibromyalgia",
+      "Diabetic neuropathy"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Dry mouth",
+      "Constipation"
+    ],
+    "alternatives": [
+      "Effexor",
+      "Pristiq"
+    ]
+  },
+  {
+    "name": "Lyrica",
+    "genericName": "Pregabalin",
+    "aliases": [
+      "Pregabalin",
+      "Lyrica CR"
+    ],
+    "category": "Anticonvulsant/Neuropathic Pain",
+    "manufacturer": "Pfizer",
+    "dosage": "75mg - 600mg",
+    "uses": [
+      "Neuropathic pain",
+      "Fibromyalgia",
+      "Epilepsy",
+      "GAD"
+    ],
+    "sideEffects": [
+      "Dizziness",
+      "Somnolence",
+      "Weight gain"
+    ],
+    "alternatives": [
+      "Neurontin",
+      "Gabapentin"
+    ]
+  },
+  {
+    "name": "Neurontin",
+    "genericName": "Gabapentin",
+    "aliases": [
+      "Gabapentin",
+      "Gralise",
+      "Horizant"
+    ],
+    "category": "Anticonvulsant",
+    "manufacturer": "Pfizer",
+    "dosage": "100mg - 3600mg",
+    "uses": [
+      "Epilepsy",
+      "Post-herpetic neuralgia",
+      "Neuropathic pain"
+    ],
+    "sideEffects": [
+      "Dizziness",
+      "Fatigue",
+      "Ataxia",
+      "Weight gain"
+    ],
+    "alternatives": [
+      "Lyrica",
+      "Pregabalin"
+    ]
+  },
+  {
+    "name": "Xanax",
+    "genericName": "Alprazolam",
+    "aliases": [
+      "Alprazolam",
+      "Niravam",
+      "Xanax XR"
+    ],
+    "category": "Benzodiazepine",
+    "manufacturer": "Pfizer",
+    "dosage": "0.25mg - 4mg",
+    "uses": [
+      "Anxiety disorders",
+      "Panic disorder"
+    ],
+    "sideEffects": [
+      "Dependence",
+      "Sedation",
+      "Memory impairment"
+    ],
+    "alternatives": [
+      "Ativan",
+      "Klonopin"
+    ]
+  },
+  {
+    "name": "Valium",
+    "genericName": "Diazepam",
+    "aliases": [
+      "Diazepam",
+      "Diastat"
+    ],
+    "category": "Benzodiazepine",
+    "manufacturer": "Roche",
+    "dosage": "2mg - 10mg",
+    "uses": [
+      "Anxiety",
+      "Muscle spasms",
+      "Seizures",
+      "Alcohol withdrawal"
+    ],
+    "sideEffects": [
+      "Sedation",
+      "Dependence",
+      "Respiratory depression"
+    ],
+    "alternatives": [
+      "Xanax",
+      "Ativan"
+    ]
+  },
+  {
+    "name": "Ativan",
+    "genericName": "Lorazepam",
+    "aliases": [
+      "Lorazepam",
+      "Temesta"
+    ],
+    "category": "Benzodiazepine",
+    "manufacturer": "Pfizer",
+    "dosage": "0.5mg - 4mg",
+    "uses": [
+      "Anxiety",
+      "Insomnia",
+      "Status epilepticus",
+      "Pre-procedure sedation"
+    ],
+    "sideEffects": [
+      "Sedation",
+      "Dependence",
+      "Respiratory depression"
+    ],
+    "alternatives": [
+      "Xanax",
+      "Valium"
+    ]
+  },
+  {
+    "name": "Klonopin",
+    "genericName": "Clonazepam",
+    "aliases": [
+      "Clonazepam",
+      "Rivotril"
+    ],
+    "category": "Benzodiazepine",
+    "manufacturer": "Roche",
+    "dosage": "0.25mg - 20mg",
+    "uses": [
+      "Panic disorder",
+      "Epilepsy"
+    ],
+    "sideEffects": [
+      "Dependence",
+      "Sedation",
+      "Cognitive impairment"
+    ],
+    "alternatives": [
+      "Ativan",
+      "Xanax"
+    ]
+  },
+  {
+    "name": "Ambien",
+    "genericName": "Zolpidem Tartrate",
+    "aliases": [
+      "Zolpidem",
+      "Edluar"
+    ],
+    "category": "Sedative/Hypnotic",
+    "manufacturer": "Sanofi",
+    "dosage": "5mg - 10mg",
+    "uses": [
+      "Insomnia",
+      "Short-term sleep initiation"
+    ],
+    "sideEffects": [
+      "Complex sleep behaviors",
+      "Dependence",
+      "Daytime drowsiness"
+    ],
+    "alternatives": [
+      "Lunesta",
+      "Restoril"
+    ]
+  },
+  {
+    "name": "Prednisone",
+    "genericName": "Prednisone",
+    "aliases": [
+      "Deltasone",
+      "Rayos"
+    ],
+    "category": "Corticosteroid",
+    "manufacturer": "Various",
+    "dosage": "1mg - 60mg",
+    "uses": [
+      "Inflammation",
+      "Autoimmune diseases",
+      "Asthma",
+      "Allergic reactions"
+    ],
+    "sideEffects": [
+      "Weight gain",
+      "Hyperglycemia",
+      "Osteoporosis",
+      "Infection risk"
+    ],
+    "alternatives": [
+      "Methylprednisolone",
+      "Dexamethasone"
+    ]
+  },
+  {
+    "name": "Medrol",
+    "genericName": "Methylprednisolone",
+    "aliases": [
+      "Methylprednisolone",
+      "Solu-Medrol",
+      "Depo-Medrol"
+    ],
+    "category": "Corticosteroid",
+    "manufacturer": "Pfizer",
+    "dosage": "4mg - 1000mg",
+    "uses": [
+      "Inflammation",
+      "Autoimmune diseases",
+      "Severe asthma"
+    ],
+    "sideEffects": [
+      "Weight gain",
+      "Hyperglycemia",
+      "Osteoporosis"
+    ],
+    "alternatives": [
+      "Prednisone",
+      "Dexamethasone"
+    ]
+  },
+  {
+    "name": "Zyrtec",
+    "genericName": "Cetirizine Hydrochloride",
+    "aliases": [
+      "Cetirizine",
+      "Zyrtec-D"
+    ],
+    "category": "Antihistamine",
+    "manufacturer": "Johnson & Johnson",
+    "dosage": "5mg - 10mg",
+    "uses": [
+      "Allergic rhinitis",
+      "Chronic urticaria",
+      "Skin allergies"
+    ],
+    "sideEffects": [
+      "Drowsiness",
+      "Dry mouth",
+      "Headache"
+    ],
+    "alternatives": [
+      "Claritin",
+      "Allegra"
+    ]
+  },
+  {
+    "name": "Claritin",
+    "genericName": "Loratadine",
+    "aliases": [
+      "Loratadine",
+      "Claritin-D",
+      "Alavert"
+    ],
+    "category": "Antihistamine",
+    "manufacturer": "Bayer",
+    "dosage": "10mg",
+    "uses": [
+      "Allergic rhinitis",
+      "Urticaria",
+      "Hay fever"
+    ],
+    "sideEffects": [
+      "Headache",
+      "Dry mouth",
+      "Fatigue"
+    ],
+    "alternatives": [
+      "Zyrtec",
+      "Allegra"
+    ]
+  },
+  {
+    "name": "Benadryl USA",
+    "genericName": "Diphenhydramine Hydrochloride",
+    "aliases": [
+      "Diphenhydramine",
+      "Benadryl allergy",
+      "ZzzQuil"
+    ],
+    "category": "Antihistamine",
+    "manufacturer": "Johnson & Johnson",
+    "dosage": "25mg - 50mg",
+    "uses": [
+      "Allergies",
+      "Motion sickness",
+      "Sleep aid",
+      "Itching"
+    ],
+    "sideEffects": [
+      "Drowsiness",
+      "Dry mouth",
+      "Urinary retention",
+      "Constipation"
+    ],
+    "alternatives": [
+      "Zyrtec",
+      "Claritin"
+    ]
+  },
+  {
+    "name": "Zithromax",
+    "genericName": "Azithromycin",
+    "aliases": [
+      "Azithromycin",
+      "Z-Pack",
+      "Zithromax Z-Pak"
+    ],
+    "category": "Antibiotic",
+    "manufacturer": "Pfizer",
+    "dosage": "250mg - 500mg",
+    "uses": [
+      "Community-acquired pneumonia",
+      "Bronchitis",
+      "Sinusitis",
+      "Chlamydia"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Diarrhea",
+      "Abdominal pain",
+      "QT prolongation"
+    ],
+    "alternatives": [
+      "Clarithromycin",
+      "Doxycycline"
+    ]
+  },
+  {
+    "name": "Cipro",
+    "genericName": "Ciprofloxacin Hydrochloride",
+    "aliases": [
+      "Ciprofloxacin",
+      "Cipro XR"
+    ],
+    "category": "Fluoroquinolone Antibiotic",
+    "manufacturer": "Bayer",
+    "dosage": "250mg - 750mg",
+    "uses": [
+      "UTI",
+      "Pneumonia",
+      "Typhoid",
+      "GI infections"
+    ],
+    "sideEffects": [
+      "Tendon rupture",
+      "QT prolongation",
+      "Nausea",
+      "Dizziness"
+    ],
+    "alternatives": [
+      "Levaquin",
+      "Augmentin"
+    ]
+  },
+  {
+    "name": "Levaquin",
+    "genericName": "Levofloxacin",
+    "aliases": [
+      "Levofloxacin",
+      "Levaquin 500mg"
+    ],
+    "category": "Fluoroquinolone Antibiotic",
+    "manufacturer": "Janssen",
+    "dosage": "250mg - 750mg",
+    "uses": [
+      "Pneumonia",
+      "Sinusitis",
+      "UTI",
+      "Skin infections"
+    ],
+    "sideEffects": [
+      "Tendon rupture",
+      "QT prolongation",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Cipro",
+      "Augmentin"
+    ]
+  },
+  {
+    "name": "Augmentin USA",
+    "genericName": "Amoxicillin-Clavulanate",
+    "aliases": [
+      "Amoxicillin-clavulanate",
+      "Amoxil-Clav",
+      "Amoclan"
+    ],
+    "category": "Antibiotic",
+    "manufacturer": "GSK",
+    "dosage": "875/125mg",
+    "uses": [
+      "Respiratory infections",
+      "Sinusitis",
+      "UTI",
+      "Ear infections"
+    ],
+    "sideEffects": [
+      "Diarrhea",
+      "Nausea",
+      "Rash"
+    ],
+    "alternatives": [
+      "Azithromycin",
+      "Cephalexin"
+    ]
+  },
+  {
+    "name": "Amoxil",
+    "genericName": "Amoxicillin",
+    "aliases": [
+      "Amoxicillin generic"
+    ],
+    "category": "Antibiotic",
+    "manufacturer": "GSK",
+    "dosage": "250mg - 500mg",
+    "uses": [
+      "Bacterial infections",
+      "Strep throat",
+      "H. pylori",
+      "UTI"
+    ],
+    "sideEffects": [
+      "Diarrhea",
+      "Rash",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Augmentin",
+      "Azithromycin"
+    ]
+  },
+  {
+    "name": "Diflucan",
+    "genericName": "Fluconazole",
+    "aliases": [
+      "Fluconazole"
+    ],
+    "category": "Antifungal",
+    "manufacturer": "Pfizer",
+    "dosage": "50mg - 400mg",
+    "uses": [
+      "Vaginal candidiasis",
+      "Oral thrush",
+      "Cryptococcal meningitis",
+      "Tinea"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Headache",
+      "Hepatotoxicity"
+    ],
+    "alternatives": [
+      "Itraconazole",
+      "Voriconazole"
+    ]
+  },
+  {
+    "name": "Zofran",
+    "genericName": "Ondansetron Hydrochloride",
+    "aliases": [
+      "Ondansetron",
+      "Zofran ODT",
+      "Zuplenz"
+    ],
+    "category": "Antiemetic",
+    "manufacturer": "GSK",
+    "dosage": "4mg - 32mg",
+    "uses": [
+      "Chemotherapy-induced nausea",
+      "PONV",
+      "Gastroenteritis"
+    ],
+    "sideEffects": [
+      "Headache",
+      "Constipation",
+      "QT prolongation"
+    ],
+    "alternatives": [
+      "Phenergan",
+      "Compazine"
+    ]
+  },
+  {
+    "name": "Tamiflu",
+    "genericName": "Oseltamivir Phosphate",
+    "aliases": [
+      "Oseltamivir"
+    ],
+    "category": "Antiviral",
+    "manufacturer": "Roche",
+    "dosage": "75mg",
+    "uses": [
+      "Influenza A and B treatment",
+      "Influenza prophylaxis"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Vomiting",
+      "Headache"
+    ],
+    "alternatives": [
+      "Relenza",
+      "Baloxavir"
+    ]
+  },
+  {
+    "name": "Valtrex",
+    "genericName": "Valacyclovir Hydrochloride",
+    "aliases": [
+      "Valacyclovir"
+    ],
+    "category": "Antiviral",
+    "manufacturer": "GSK",
+    "dosage": "500mg - 1000mg",
+    "uses": [
+      "Herpes zoster",
+      "Genital herpes",
+      "Cold sores",
+      "Chickenpox"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Headache",
+      "Dizziness"
+    ],
+    "alternatives": [
+      "Acyclovir"
+    ]
+  },
+  {
+    "name": "Zovirax",
+    "genericName": "Acyclovir",
+    "aliases": [
+      "Acyclovir",
+      "Acivir"
+    ],
+    "category": "Antiviral",
+    "manufacturer": "GSK",
+    "dosage": "200mg - 800mg",
+    "uses": [
+      "Herpes simplex",
+      "Herpes zoster",
+      "Chickenpox",
+      "HSV encephalitis"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Headache",
+      "Nephrotoxicity"
+    ],
+    "alternatives": [
+      "Valtrex"
+    ]
+  },
+  {
+    "name": "Flomax",
+    "genericName": "Tamsulosin Hydrochloride",
+    "aliases": [
+      "Tamsulosin",
+      "Jalyn"
+    ],
+    "category": "Alpha Blocker/BPH",
+    "manufacturer": "Boehringer Ingelheim",
+    "dosage": "0.4mg",
+    "uses": [
+      "Benign prostatic hyperplasia",
+      "Kidney stone passage"
+    ],
+    "sideEffects": [
+      "Orthostatic hypotension",
+      "Retrograde ejaculation",
+      "Dizziness"
+    ],
+    "alternatives": [
+      "Doxazosin",
+      "Terazosin"
+    ]
+  },
+  {
+    "name": "Zyloprim",
+    "genericName": "Allopurinol",
+    "aliases": [
+      "Allopurinol",
+      "Aloprim"
+    ],
+    "category": "Xanthine Oxidase Inhibitor",
+    "manufacturer": "Mylan",
+    "dosage": "100mg - 800mg",
+    "uses": [
+      "Gout",
+      "Hyperuricemia",
+      "Uric acid kidney stones"
+    ],
+    "sideEffects": [
+      "Stevens-Johnson syndrome",
+      "Rash",
+      "GI upset"
+    ],
+    "alternatives": [
+      "Febuxostat",
+      "Colchicine"
+    ]
+  },
+  {
+    "name": "Colchicine",
+    "genericName": "Colchicine",
+    "aliases": [
+      "Colcrys",
+      "Mitigare"
+    ],
+    "category": "Antigout",
+    "manufacturer": "Takeda",
+    "dosage": "0.6mg",
+    "uses": [
+      "Acute gout",
+      "Gout prophylaxis",
+      "Pericarditis"
+    ],
+    "sideEffects": [
+      "Diarrhea",
+      "Nausea",
+      "Vomiting"
+    ],
+    "alternatives": [
+      "Indomethacin",
+      "Prednisone"
+    ]
+  },
+  {
+    "name": "Lasix",
+    "genericName": "Furosemide",
+    "aliases": [
+      "Furosemide",
+      "Frusemide"
+    ],
+    "category": "Loop Diuretic",
+    "manufacturer": "Sanofi",
+    "dosage": "20mg - 600mg",
+    "uses": [
+      "Heart failure",
+      "Pulmonary edema",
+      "Hypertension",
+      "Edema"
+    ],
+    "sideEffects": [
+      "Electrolyte imbalance",
+      "Dehydration",
+      "Ototoxicity"
+    ],
+    "alternatives": [
+      "Bumetanide",
+      "Torsemide"
+    ]
+  },
+  {
+    "name": "HydroDIURIL",
+    "genericName": "Hydrochlorothiazide",
+    "aliases": [
+      "Hydrochlorothiazide",
+      "HCTZ",
+      "Microzide"
+    ],
+    "category": "Thiazide Diuretic",
+    "manufacturer": "Various",
+    "dosage": "12.5mg - 50mg",
+    "uses": [
+      "Hypertension",
+      "Edema",
+      "Heart failure"
+    ],
+    "sideEffects": [
+      "Electrolyte disturbances",
+      "Hyperuricemia",
+      "Hyperglycemia"
+    ],
+    "alternatives": [
+      "Furosemide",
+      "Chlorthalidone"
+    ]
+  },
+  {
+    "name": "Aldactone",
+    "genericName": "Spironolactone",
+    "aliases": [
+      "Spironolactone",
+      "Carospir"
+    ],
+    "category": "Potassium-Sparing Diuretic",
+    "manufacturer": "Pfizer",
+    "dosage": "25mg - 200mg",
+    "uses": [
+      "Heart failure",
+      "Hypertension",
+      "Hyperaldosteronism",
+      "Hormonal acne"
+    ],
+    "sideEffects": [
+      "Hyperkalemia",
+      "Gynecomastia",
+      "Menstrual irregularity"
+    ],
+    "alternatives": [
+      "Eplerenone",
+      "Furosemide"
+    ]
+  },
+  {
+    "name": "Lantus",
+    "genericName": "Insulin Glargine",
+    "aliases": [
+      "Insulin Glargine",
+      "Toujeo",
+      "Basaglar"
+    ],
+    "category": "Insulin",
+    "manufacturer": "Sanofi",
+    "dosage": "100 units/mL",
+    "uses": [
+      "Type 1 diabetes",
+      "Type 2 diabetes",
+      "Once-daily basal insulin"
+    ],
+    "sideEffects": [
+      "Hypoglycemia",
+      "Weight gain",
+      "Injection site reactions"
+    ],
+    "alternatives": [
+      "Insulin Detemir",
+      "Insulin NPH"
+    ]
+  },
+  {
+    "name": "NovoLog",
+    "genericName": "Insulin Aspart",
+    "aliases": [
+      "Insulin Aspart",
+      "NovoRapid",
+      "Fiasp"
+    ],
+    "category": "Rapid-Acting Insulin",
+    "manufacturer": "Novo Nordisk",
+    "dosage": "100 units/mL",
+    "uses": [
+      "Type 1 and 2 diabetes",
+      "Mealtime insulin"
+    ],
+    "sideEffects": [
+      "Hypoglycemia",
+      "Weight gain"
+    ],
+    "alternatives": [
+      "Humalog",
+      "Apidra"
+    ]
+  },
+  {
+    "name": "Humalog",
+    "genericName": "Insulin Lispro",
+    "aliases": [
+      "Insulin Lispro",
+      "Admelog"
+    ],
+    "category": "Rapid-Acting Insulin",
+    "manufacturer": "Eli Lilly",
+    "dosage": "100 units/mL",
+    "uses": [
+      "Type 1 and 2 diabetes",
+      "Mealtime insulin"
+    ],
+    "sideEffects": [
+      "Hypoglycemia",
+      "Weight gain"
+    ],
+    "alternatives": [
+      "NovoLog",
+      "Apidra"
+    ]
+  },
+  {
+    "name": "Abilify",
+    "genericName": "Aripiprazole",
+    "aliases": [
+      "Aripiprazole",
+      "Abilify Maintena",
+      "Aristada"
+    ],
+    "category": "Atypical Antipsychotic",
+    "manufacturer": "Otsuka",
+    "dosage": "2mg - 30mg",
+    "uses": [
+      "Schizophrenia",
+      "Bipolar I disorder",
+      "Major depression adjunct",
+      "Autism"
+    ],
+    "sideEffects": [
+      "Akathisia",
+      "Weight gain",
+      "Metabolic effects",
+      "Tardive dyskinesia"
+    ],
+    "alternatives": [
+      "Seroquel",
+      "Risperdal"
+    ]
+  },
+  {
+    "name": "Seroquel",
+    "genericName": "Quetiapine Fumarate",
+    "aliases": [
+      "Quetiapine",
+      "Seroquel XR"
+    ],
+    "category": "Atypical Antipsychotic",
+    "manufacturer": "AstraZeneca",
+    "dosage": "25mg - 800mg",
+    "uses": [
+      "Schizophrenia",
+      "Bipolar disorder",
+      "Major depression adjunct"
+    ],
+    "sideEffects": [
+      "Sedation",
+      "Weight gain",
+      "Metabolic syndrome"
+    ],
+    "alternatives": [
+      "Abilify",
+      "Risperdal"
+    ]
+  },
+  {
+    "name": "Risperdal",
+    "genericName": "Risperidone",
+    "aliases": [
+      "Risperidone",
+      "Risperdal Consta"
+    ],
+    "category": "Atypical Antipsychotic",
+    "manufacturer": "Janssen",
+    "dosage": "0.5mg - 8mg",
+    "uses": [
+      "Schizophrenia",
+      "Bipolar disorder",
+      "Autism-related irritability"
+    ],
+    "sideEffects": [
+      "EPS",
+      "Tardive dyskinesia",
+      "Prolactin elevation",
+      "Weight gain"
+    ],
+    "alternatives": [
+      "Abilify",
+      "Zyprexa"
+    ]
+  },
+  {
+    "name": "Zyprexa",
+    "genericName": "Olanzapine",
+    "aliases": [
+      "Olanzapine",
+      "Zyprexa Zydis"
+    ],
+    "category": "Atypical Antipsychotic",
+    "manufacturer": "Eli Lilly",
+    "dosage": "2.5mg - 20mg",
+    "uses": [
+      "Schizophrenia",
+      "Bipolar disorder"
+    ],
+    "sideEffects": [
+      "Significant weight gain",
+      "Hyperglycemia",
+      "Sedation"
+    ],
+    "alternatives": [
+      "Abilify",
+      "Seroquel"
+    ]
+  },
+  {
+    "name": "Adderall",
+    "genericName": "Mixed Amphetamine Salts",
+    "aliases": [
+      "Amphetamine",
+      "Adderall XR"
+    ],
+    "category": "Stimulant/ADHD",
+    "manufacturer": "Shire",
+    "dosage": "5mg - 30mg",
+    "uses": [
+      "ADHD",
+      "Narcolepsy"
+    ],
+    "sideEffects": [
+      "Insomnia",
+      "Appetite loss",
+      "Hypertension",
+      "Dependence"
+    ],
+    "alternatives": [
+      "Ritalin",
+      "Vyvanse"
+    ]
+  },
+  {
+    "name": "Ritalin",
+    "genericName": "Methylphenidate Hydrochloride",
+    "aliases": [
+      "Methylphenidate",
+      "Ritalin LA",
+      "Concerta"
+    ],
+    "category": "Stimulant/ADHD",
+    "manufacturer": "Novartis",
+    "dosage": "5mg - 60mg",
+    "uses": [
+      "ADHD",
+      "Narcolepsy"
+    ],
+    "sideEffects": [
+      "Insomnia",
+      "Appetite suppression",
+      "Headache"
+    ],
+    "alternatives": [
+      "Adderall",
+      "Strattera"
+    ]
+  },
+  {
+    "name": "Entresto",
+    "genericName": "Sacubitril-Valsartan",
+    "aliases": [
+      "Sacubitril/valsartan",
+      "LCZ696"
+    ],
+    "category": "Heart Failure",
+    "manufacturer": "Novartis",
+    "dosage": "24/26mg - 97/103mg",
+    "uses": [
+      "Heart failure with reduced ejection fraction"
+    ],
+    "sideEffects": [
+      "Hypotension",
+      "Hyperkalemia",
+      "Renal impairment"
+    ],
+    "alternatives": [
+      "Lisinopril",
+      "Valsartan"
+    ]
+  },
+  {
+    "name": "Trulicity",
+    "genericName": "Dulaglutide",
+    "aliases": [
+      "Dulaglutide"
+    ],
+    "category": "GLP-1 Agonist",
+    "manufacturer": "Eli Lilly",
+    "dosage": "0.75mg - 4.5mg weekly",
+    "uses": [
+      "Type 2 diabetes",
+      "Cardiovascular risk reduction"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Diarrhea",
+      "Pancreatitis"
+    ],
+    "alternatives": [
+      "Ozempic",
+      "Victoza"
+    ]
+  },
+  {
+    "name": "Victoza",
+    "genericName": "Liraglutide",
+    "aliases": [
+      "Liraglutide",
+      "Saxenda"
+    ],
+    "category": "GLP-1 Agonist",
+    "manufacturer": "Novo Nordisk",
+    "dosage": "0.6mg - 1.8mg daily",
+    "uses": [
+      "Type 2 diabetes",
+      "Obesity"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Pancreatitis",
+      "GI upset"
+    ],
+    "alternatives": [
+      "Ozempic",
+      "Trulicity"
+    ]
+  },
+  {
+    "name": "Bactrim",
+    "genericName": "Sulfamethoxazole-Trimethoprim",
+    "aliases": [
+      "SMX-TMP",
+      "Co-trimoxazole",
+      "Septra",
+      "Cotrimoxazole"
+    ],
+    "category": "Antibiotic",
+    "manufacturer": "Roche",
+    "dosage": "800/160mg",
+    "uses": [
+      "UTI",
+      "PCP pneumonia",
+      "MRSA skin infections",
+      "Traveler's diarrhea"
+    ],
+    "sideEffects": [
+      "Rash",
+      "Stevens-Johnson syndrome",
+      "Hyperkalemia"
+    ],
+    "alternatives": [
+      "Doxycycline",
+      "Ciprofloxacin"
+    ]
+  },
+  {
+    "name": "Doxycycline",
+    "genericName": "Doxycycline Hyclate",
+    "aliases": [
+      "Vibramycin",
+      "Doryx",
+      "Oracea"
+    ],
+    "category": "Tetracycline Antibiotic",
+    "manufacturer": "Various",
+    "dosage": "100mg",
+    "uses": [
+      "Bacterial infections",
+      "Acne",
+      "Malaria prophylaxis",
+      "Chlamydia",
+      "Lyme disease"
+    ],
+    "sideEffects": [
+      "Photosensitivity",
+      "Esophageal irritation",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Azithromycin",
+      "Minocycline"
+    ]
+  },
+  {
+    "name": "Keflex",
+    "genericName": "Cephalexin Monohydrate",
+    "aliases": [
+      "Cephalexin",
+      "Biocef"
+    ],
+    "category": "Cephalosporin Antibiotic",
+    "manufacturer": "Shionogi",
+    "dosage": "250mg - 500mg",
+    "uses": [
+      "Skin infections",
+      "Strep throat",
+      "UTI",
+      "Cellulitis"
+    ],
+    "sideEffects": [
+      "Diarrhea",
+      "Nausea",
+      "Rash"
+    ],
+    "alternatives": [
+      "Amoxicillin",
+      "Clindamycin"
+    ]
+  },
+  {
+    "name": "Cleocin",
+    "genericName": "Clindamycin Hydrochloride",
+    "aliases": [
+      "Clindamycin",
+      "BenzaClin"
+    ],
+    "category": "Lincosamide Antibiotic",
+    "manufacturer": "Pfizer",
+    "dosage": "150mg - 450mg",
+    "uses": [
+      "MRSA infections",
+      "Bacterial vaginosis",
+      "Dental infections",
+      "Anaerobic infections"
+    ],
+    "sideEffects": [
+      "C. diff colitis",
+      "Diarrhea",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Amoxicillin",
+      "Cephalexin"
+    ]
+  },
+  {
+    "name": "Flagyl",
+    "genericName": "Metronidazole",
+    "aliases": [
+      "Metronidazole",
+      "MetroGel"
+    ],
+    "category": "Antiprotozoal/Antibiotic",
+    "manufacturer": "Pfizer",
+    "dosage": "250mg - 500mg",
+    "uses": [
+      "Bacterial vaginosis",
+      "C. difficile",
+      "Trichomoniasis",
+      "H. pylori"
+    ],
+    "sideEffects": [
+      "Metallic taste",
+      "Nausea",
+      "Peripheral neuropathy"
+    ],
+    "alternatives": [
+      "Clindamycin",
+      "Tinidazole"
+    ]
+  },
+  {
+    "name": "Macrobid",
+    "genericName": "Nitrofurantoin",
+    "aliases": [
+      "Nitrofurantoin",
+      "Macrodantin"
+    ],
+    "category": "Antibiotic",
+    "manufacturer": "Almatica Pharma",
+    "dosage": "50mg - 100mg",
+    "uses": [
+      "UTI",
+      "Uncomplicated cystitis",
+      "UTI prophylaxis"
+    ],
+    "sideEffects": [
+      "Nausea",
+      "Pulmonary toxicity"
+    ],
+    "alternatives": [
+      "Bactrim",
+      "Ciprofloxacin"
+    ]
+  },
+  {
+    "name": "Tegretol",
+    "genericName": "Carbamazepine",
+    "aliases": [
+      "Carbamazepine",
+      "Carbatrol",
+      "Epitol",
+      "Equetro"
+    ],
+    "category": "Anticonvulsant",
+    "manufacturer": "Novartis",
+    "dosage": "100mg - 1200mg",
+    "uses": [
+      "Epilepsy",
+      "Trigeminal neuralgia",
+      "Bipolar disorder"
+    ],
+    "sideEffects": [
+      "Hyponatremia",
+      "Dizziness",
+      "Stevens-Johnson syndrome"
+    ],
+    "alternatives": [
+      "Valproate",
+      "Phenytoin"
+    ]
+  },
+  {
+    "name": "Depakote",
+    "genericName": "Divalproex Sodium",
+    "aliases": [
+      "Valproic acid",
+      "Depakote ER",
+      "Depakene",
+      "Valproate"
+    ],
+    "category": "Anticonvulsant/Mood Stabilizer",
+    "manufacturer": "AbbVie",
+    "dosage": "250mg - 1500mg",
+    "uses": [
+      "Epilepsy",
+      "Bipolar disorder",
+      "Migraine prophylaxis"
+    ],
+    "sideEffects": [
+      "Weight gain",
+      "Hair loss",
+      "Hepatotoxicity",
+      "Teratogenicity"
+    ],
+    "alternatives": [
+      "Lithium",
+      "Carbamazepine"
+    ]
+  },
+  {
+    "name": "Lithobid",
+    "genericName": "Lithium Carbonate",
+    "aliases": [
+      "Lithium",
+      "Eskalith",
+      "Lithonate"
+    ],
+    "category": "Mood Stabilizer",
+    "manufacturer": "Various",
+    "dosage": "150mg - 1800mg",
+    "uses": [
+      "Bipolar disorder",
+      "Mania",
+      "Bipolar depression"
+    ],
+    "sideEffects": [
+      "Tremor",
+      "Polyuria",
+      "Weight gain",
+      "Hypothyroidism"
+    ],
+    "alternatives": [
+      "Depakote",
+      "Lamictal"
+    ]
+  },
+  {
+    "name": "Lamictal",
+    "genericName": "Lamotrigine",
+    "aliases": [
+      "Lamotrigine",
+      "Lamictal XR"
+    ],
+    "category": "Anticonvulsant/Mood Stabilizer",
+    "manufacturer": "GSK",
+    "dosage": "25mg - 400mg",
+    "uses": [
+      "Epilepsy",
+      "Bipolar disorder"
+    ],
+    "sideEffects": [
+      "Rash",
+      "Stevens-Johnson syndrome",
+      "Dizziness"
+    ],
+    "alternatives": [
+      "Depakote",
+      "Carbamazepine"
+    ]
+  },
+  {
+    "name": "Viagra",
+    "genericName": "Sildenafil Citrate",
+    "aliases": [
+      "Sildenafil",
+      "Revatio"
+    ],
+    "category": "PDE5 Inhibitor",
+    "manufacturer": "Pfizer",
+    "dosage": "25mg - 100mg",
+    "uses": [
+      "Erectile dysfunction",
+      "Pulmonary arterial hypertension"
+    ],
+    "sideEffects": [
+      "Headache",
+      "Flushing",
+      "Visual changes",
+      "Hypotension"
+    ],
+    "alternatives": [
+      "Cialis",
+      "Levitra"
+    ]
+  },
+  {
+    "name": "Cialis",
+    "genericName": "Tadalafil",
+    "aliases": [
+      "Tadalafil",
+      "Adcirca"
+    ],
+    "category": "PDE5 Inhibitor",
+    "manufacturer": "Eli Lilly",
+    "dosage": "2.5mg - 20mg",
+    "uses": [
+      "Erectile dysfunction",
+      "BPH",
+      "Pulmonary arterial hypertension"
+    ],
+    "sideEffects": [
+      "Headache",
+      "Back pain",
+      "Muscle aches"
+    ],
+    "alternatives": [
+      "Viagra",
+      "Levitra"
+    ]
+  },
+  {
+    "name": "Humira",
+    "genericName": "Adalimumab",
+    "aliases": [
+      "Adalimumab",
+      "Amjevita",
+      "Cyltezo"
+    ],
+    "category": "Biologic/TNF Inhibitor",
+    "manufacturer": "AbbVie",
+    "dosage": "40mg every 2 weeks",
+    "uses": [
+      "Rheumatoid arthritis",
+      "Psoriasis",
+      "Crohn's disease",
+      "Ulcerative colitis"
+    ],
+    "sideEffects": [
+      "Serious infections",
+      "Injection site reactions",
+      "Lymphoma risk"
+    ],
+    "alternatives": [
+      "Enbrel",
+      "Remicade"
+    ]
+  },
+  {
+    "name": "Plaquenil",
+    "genericName": "Hydroxychloroquine Sulfate",
+    "aliases": [
+      "Hydroxychloroquine",
+      "HCQS"
+    ],
+    "category": "Antimalarial/DMARD",
+    "manufacturer": "Sanofi",
+    "dosage": "200mg - 400mg",
+    "uses": [
+      "SLE Lupus",
+      "Rheumatoid arthritis",
+      "Malaria prevention"
+    ],
+    "sideEffects": [
+      "Retinopathy",
+      "Nausea",
+      "GI upset",
+      "QT prolongation"
+    ],
+    "alternatives": [
+      "Chloroquine",
+      "Methotrexate"
+    ]
+  },
+  {
+    "name": "Methotrexate",
+    "genericName": "Methotrexate",
+    "aliases": [
+      "Otrexup",
+      "Rasuvo",
+      "Trexall"
+    ],
+    "category": "DMARD/Antimetabolite",
+    "manufacturer": "Pfizer",
+    "dosage": "7.5mg - 25mg weekly",
+    "uses": [
+      "Rheumatoid arthritis",
+      "Psoriasis",
+      "Ectopic pregnancy",
+      "Leukemia"
+    ],
+    "sideEffects": [
+      "Hepatotoxicity",
+      "Mucositis",
+      "Myelosuppression",
+      "Teratogenicity"
+    ],
+    "alternatives": [
+      "Leflunomide",
+      "Hydroxychloroquine"
+    ]
+  },
+  {
+    "name": "Vitamin D3",
+    "genericName": "Cholecalciferol",
+    "aliases": [
+      "Cholecalciferol",
+      "D3",
+      "Drisdol"
+    ],
+    "category": "Vitamin Supplement",
+    "manufacturer": "Various",
+    "dosage": "400IU - 5000IU",
+    "uses": [
+      "Vitamin D deficiency",
+      "Rickets",
+      "Osteoporosis",
+      "Immune support"
+    ],
+    "sideEffects": [
+      "Hypercalcemia in overdose",
+      "Kidney stones"
+    ],
+    "alternatives": [
+      "Vitamin D2"
+    ]
+  },
+  {
+    "name": "Folic Acid",
+    "genericName": "Folic Acid",
+    "aliases": [
+      "Folate",
+      "Folacin",
+      "Folvite"
+    ],
+    "category": "Vitamin Supplement",
+    "manufacturer": "Various",
+    "dosage": "0.4mg - 5mg",
+    "uses": [
+      "Folate deficiency",
+      "Neural tube defect prevention",
+      "Megaloblastic anemia"
+    ],
+    "sideEffects": [
+      "Masking B12 deficiency"
+    ],
+    "alternatives": [
+      "Multivitamin",
+      "Methylfolate"
+    ]
+  },
+  {
+    "name": "Ferrous Sulfate",
+    "genericName": "Iron Supplement",
+    "aliases": [
+      "Iron",
+      "Fer-In-Sol",
+      "Feosol"
+    ],
+    "category": "Iron Supplement",
+    "manufacturer": "Various",
+    "dosage": "325mg",
+    "uses": [
+      "Iron deficiency anemia",
+      "Iron supplementation in pregnancy"
+    ],
+    "sideEffects": [
+      "Constipation",
+      "Dark stools",
+      "Nausea"
+    ],
+    "alternatives": [
+      "Ferrous Gluconate",
+      "IV Iron"
+    ]
   }
 ]
